@@ -1,3 +1,11 @@
+<script setup>
+import { onMounted } from "vue";
+import { initFlowbite } from "flowbite";
+
+onMounted(() => {
+  initFlowbite();
+});
+</script>
 <template>
-  <h1>Vue + Electron</h1>
+  <router-view />
 </template>
