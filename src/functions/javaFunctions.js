@@ -70,5 +70,16 @@ export function installJava (app, win) {
             })
         }
 
+        if (process.platform === 'darwin' || process.platform === 'linux') {
+            // extract the tar.gz file
+            exec(`tar -xzf ${destination} -C ${path.join(app.getPath('userData'), 'java')}`)
+                .then((result) => {
+                    resolve(result);
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        }
+
     })
 }
