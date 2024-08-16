@@ -1,8 +1,18 @@
-import fs from "node:fs";
-
-const { app, BrowserWindow, dialog } = require('electron');
-const path = require('node:path');
+import { app, BrowserWindow, dialog, Notification  } from 'electron';
+import * as path from "node:path";
 import {checkJavaInstallation, installJava} from './functions/javaFunctions';
+import {ipcMain} from "electron";
+import {Auth} from "msmc";
+import Store from "./storage.js";
+import crypto from "crypto";
+import fs from "fs";
+
+if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
+    const securityToken = crypto.randomBytes(64).toString('hex');
+    fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
+}
+const storage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'));
+
 let win;
 if (require('electron-squirrel-startup')) {
   app.quit();
@@ -14,7 +24,9 @@ const createWindow = () => {
     height: 900,
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+        preload: path.join(__dirname, 'preload.js'),
+        nodeIntegration: true,
+        contextIsolation: true,
     },
   });
 
@@ -27,6 +39,7 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 
   win = mainWindow;
+  app.setAppUserModelId(process.execPath)
 };
 
 app.whenReady().then(() => {
@@ -34,28 +47,31 @@ app.whenReady().then(() => {
 
     checkJavaInstallation(app)
         .then((result) => {
+            new Notification({
+                title: "Java installed",
+                body: "Java is installed on your system.",
+            }).show();
         })
         .catch((error) => {
-            dialog.showMessageBox({
-                type: "info",
-                title: "Java not found, installing Java",
-                message: "Downloading and installing Java, this may take a while",
-            })
+            new Notification({
+                title: "Java not installed",
+                body: "Java is not installed on your system, we will install it for you.",
+            }).show();
 
             installJava(app, win)
                 .then((result) => {
-                    dialog.showMessageBox({
-                        type: "info",
+                    new Notification({
                         title: "Java installed",
-                        message: "Java has been installed successfully",
-                    })
+                        body: "Java has been installed on your system.",
+                    }).show();
                 })
                 .catch((error) => {
-                    dialog.showMessageBox({
-                        type: "error",
-                        title: "Error",
-                        message: error.message,
-                    })
+                    new Notification({
+                        title: "Java installation failed",
+                        body: "Java installation failed.",
+                    }).show();
+
+                    dialog.showErrorBox("Java installation failed", error.message);
                 });
         });
 
@@ -70,4 +86,15 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+ipcMain.handle("login", async (event) => {
+    const authManager = new Auth("select_account");
+    const xboxManager = await authManager.launch("electron")
+    const token = await xboxManager.getMinecraft();
+    
+});
+
+ipcMain.handle("getMinecraftAccounts", async (event) => {
+
 });

@@ -49,37 +49,39 @@ export function installJava (app, win) {
         dl.on('progress', function (stats) {
             win.setProgressBar(stats.progress);
         })
+        dl.on('end', function () {
+            win.setProgressBar(-1);
+            if (process.platform === 'win32') {
+                // extract the zip file
+                let unzipper = new DecompressZip(destination);
+                unzipper.on('progress', function (fileIndex, fileCount) {
+                    win.setProgressBar(fileIndex / fileCount);
+                });
+                unzipper.on('error', function (error) {
+                    reject(error);
+                });
+                unzipper.on('extract', function () {
+                    resolve();
+                });
+                unzipper.extract({
+                    path: path.join(app.getPath('userData'), 'java')
+                })
+            }
+
+            if (process.platform === 'darwin' || process.platform === 'linux') {
+                // extract the tar.gz file
+                exec(`tar -xzf ${destination} -C ${path.join(app.getPath('userData'), 'java')}`)
+                    .then((result) => {
+                        resolve(result);
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    });
+            }
+        });
         dl.start().catch((error) => {
             reject(error);
         });
-
-        if (process.platform === 'win32') {
-            // extract the zip file
-            let unzipper = new DecompressZip(destination);
-            unzipper.on('progress', function (fileIndex, fileCount) {
-                win.setProgressBar(fileIndex / fileCount);
-            });
-            unzipper.on('error', function (error) {
-                reject(error);
-            });
-            unzipper.on('extract', function () {
-                resolve();
-            });
-            unzipper.extract({
-                path: path.join(app.getPath('userData'), 'java')
-            })
-        }
-
-        if (process.platform === 'darwin' || process.platform === 'linux') {
-            // extract the tar.gz file
-            exec(`tar -xzf ${destination} -C ${path.join(app.getPath('userData'), 'java')}`)
-                .then((result) => {
-                    resolve(result);
-                })
-                .catch((error) => {
-                    reject(error);
-                });
-        }
 
     })
 }
