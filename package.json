@@ -35,10 +35,14 @@
   },
   "license": "MIT",
   "dependencies": {
+    "child-process-promise": "^2.2.1",
+    "decompress-zip": "^0.3.3",
     "electron-squirrel-startup": "^1.0.1",
+    "electron-store": "^10.0.0",
     "flowbite": "^2.5.1",
     "minecraft-launcher-core": "^3.18.1",
     "msmc": "^5.0.5",
+    "node-downloader-helper": "^2.1.9",
     "vue": "^3.4.38",
     "vue-router": "^4.4.3"
   }

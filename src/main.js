@@ -1,7 +1,9 @@
-const { app, BrowserWindow } = require('electron');
-const path = require('node:path');
+import fs from "node:fs";
 
-// Handle creating/removing shortcuts on Windows when installing/uninstalling.
+const { app, BrowserWindow, dialog } = require('electron');
+const path = require('node:path');
+import {checkJavaInstallation, installJava} from './functions/javaFunctions';
+let win;
 if (require('electron-squirrel-startup')) {
   app.quit();
 }
@@ -23,10 +25,40 @@ const createWindow = () => {
   }
 
   mainWindow.webContents.openDevTools();
+
+  win = mainWindow;
 };
 
 app.whenReady().then(() => {
-  createWindow();
+    createWindow();
+
+    checkJavaInstallation(app)
+        .then((result) => {
+        })
+        .catch((error) => {
+            dialog.showMessageBox({
+                type: "info",
+                title: "Java not found, installing Java",
+                message: "Downloading and installing Java, this may take a while",
+            })
+
+            installJava(app, win)
+                .then((result) => {
+                    dialog.showMessageBox({
+                        type: "info",
+                        title: "Java installed",
+                        message: "Java has been installed successfully",
+                    })
+                })
+                .catch((error) => {
+                    dialog.showMessageBox({
+                        type: "error",
+                        title: "Error",
+                        message: error.message,
+                    })
+                });
+        });
+
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
