@@ -1,17 +1,18 @@
-import { app, BrowserWindow, dialog, Notification  } from 'electron';
+import { app, BrowserWindow, dialog, Notification, Menu  } from 'electron';
 import * as path from "node:path";
 import {checkJavaInstallation, installJava} from './functions/javaFunctions';
-import {ipcMain} from "electron";
-import {Auth} from "msmc";
 import Store from "./storage.js";
 import crypto from "crypto";
 import fs from "fs";
+import ipcEvents from "./functions/ipcEvents";
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     const securityToken = crypto.randomBytes(64).toString('hex');
     fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
 }
-const storage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'));
+
+const accountStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'accounts.json');
+const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'settings.json');
 
 let win;
 if (require('electron-squirrel-startup')) {
@@ -25,10 +26,9 @@ const createWindow = () => {
     autoHideMenuBar: true,
     webPreferences: {
         preload: path.join(__dirname, 'preload.js'),
-        nodeIntegration: true,
-        contextIsolation: true,
     },
   });
+  mainWindow.setTitle("DevsMC Launcher");
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
@@ -39,8 +39,10 @@ const createWindow = () => {
   mainWindow.webContents.openDevTools();
 
   win = mainWindow;
-  app.setAppUserModelId(process.execPath)
+  ipcEvents(accountStorage, settingsStorage, win)
+  app.setAppUserModelId(process.execPath);
 };
+
 
 app.whenReady().then(() => {
     createWindow();
@@ -86,15 +88,4 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
-});
-
-ipcMain.handle("login", async (event) => {
-    const authManager = new Auth("select_account");
-    const xboxManager = await authManager.launch("electron")
-    const token = await xboxManager.getMinecraft();
-    
-});
-
-ipcMain.handle("getMinecraftAccounts", async (event) => {
-
 });

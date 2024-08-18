@@ -4,9 +4,10 @@ const fs = require('fs');
 const crypto = require('crypto');
 
 class Store {
-    constructor(encryptionKey) {
+    constructor(encryptionKey, configFile) {
         this.encryptionKey = encryptionKey;
         this.algorithm = 'aes-256-cbc';
+        this.configFile = configFile;
     }
 
     encrypt(text) {
@@ -27,11 +28,11 @@ class Store {
     }
 
     getKey() {
-        return crypto.scryptSync(this.encryptionKey, 'salt', 32); // Derives a key from the provided encryptionKey
+        return crypto.scryptSync(this.encryptionKey, 'salt', 32);
     }
 
     getConfigPath() {
-        return path.join(app.getPath('userData'), 'config.json');
+        return path.join(app.getPath('userData'), this.configFile);
     }
 
     getConfig() {
@@ -85,6 +86,14 @@ class Store {
         const configJs = this.getConfig();
         if (Array.isArray(configJs[key])) {
             configJs[key] = configJs[key].filter(item => item !== value);
+            this.saveConfig(configJs);
+        }
+    }
+
+    removeFromArrayByIndex(key, index) {
+        const configJs = this.getConfig();
+        if (Array.isArray(configJs[key])) {
+            configJs[key].splice(index, 1);
             this.saveConfig(configJs);
         }
     }
