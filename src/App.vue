@@ -133,25 +133,15 @@ export default {
       selectedAccount: JSON.parse(localStorage.getItem('selectedAccount')) || null,
       minecraftDirectory: '',
       searchedVersion: '',
+      adjustedBottom: 0,
     };
   },
   components: {
     Accounts,
   },
-  computed: {
-    adjustedBottom() {
-      const itemCount = this.versions.length;
-      let newBottom = this.initialBottom;
-
-      if (itemCount < this.maxItems) {
-        newBottom -= (this.maxItems - itemCount) * this.reductionPerMissingItem;
-      }
-
-      return newBottom;
-    },
-  },
   async mounted() {
 
+    localStorage.setItem('logs', JSON.stringify([]));
     if (await window.devsApi.getSettingValue('background')) {
       document.querySelector('.background-image').style.backgroundImage = `url(${await window.devsApi.getSettingValue('background')})`
     }
@@ -159,6 +149,7 @@ export default {
     document.addEventListener('click', this.closeMenuOnOutsideClick);
     this.versions = await window.devsApi.getVersions();
     this.filteredVersions = this.versions;
+    this.adjustBottom();
     if (!this.selectedAccount) {
       this.isGameRunned = true;
       window.devsApi.changeTitle('No selected account');
@@ -190,10 +181,21 @@ export default {
     },
     filterVersions() {
       this.filteredVersions = this.versions.filter(version => version.name.toLowerCase().includes(this.searchedVersion.toLowerCase()));
+      this.adjustBottom();
     },
     updateSelectedAccount() {
       this.selectedAccount = JSON.parse(localStorage.getItem('selectedAccount'));
       this.isGameRunned = false;
+    },
+    adjustBottom() {
+      const itemCount = this.filteredVersions.length;
+      let newBottom = this.initialBottom;
+
+      if (itemCount < this.maxItems) {
+        newBottom -= (this.maxItems - itemCount) * this.reductionPerMissingItem;
+      }
+
+      this.adjustedBottom = newBottom;
     },
     toggleMenu() {
       this.isMenuVisible = !this.isMenuVisible;

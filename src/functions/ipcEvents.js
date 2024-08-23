@@ -3,11 +3,43 @@ import {Auth} from "msmc";
 import {Authenticator, Client} from "minecraft-launcher-core";
 import * as path from "node:path";
 import fs from "node:fs";
+import DiscordRCP from "discord-rpc";
 import * as os from "node:os";
 
 let launcher = null;
 let launchedClient = null;
 let logFile = null;
+const startTimestamp = new Date();
+let text = "Playing Minecraft";
+DiscordRCP.register('1276294581058666497');
+let RPC = new DiscordRCP.Client({
+    transport: 'ipc',
+})
+
+
+RPC.on('ready', () => {
+    RPC.setActivity({
+        details: text,
+        state: 'using DevsMC Launcher',
+        startTimestamp,
+        largeImageKey: 'devsmc-logo',
+        largeImageText: 'DevsMarket',
+        instance: false,
+    });
+
+    setInterval(() => {
+        RPC.setActivity({
+            details: text,
+            state: 'using DevsMC Launcher',
+            startTimestamp,
+            largeImageKey: 'devsmc-logo',
+            largeImageText: 'DevsMarket',
+            instance: false,
+        });
+    }, 15e3);
+});
+
+RPC.login({clientId: '1276294581058666497'}).catch(console.error);
 
 function findJdkFolder(folderPath) {
     const files = fs.readdirSync(folderPath);
@@ -74,6 +106,7 @@ export default (accountStorage, settingsStorage, win) => {
 
 
     ipcMain.handle("runGame", async (event, data) => {
+        text = `Playing Minecraft as ${data.user.object.username || data.user.object.name} (Minecraft version: ${data.launcher.version.number})`;
         if (data.user.microsoft) {
             const authManager = new Auth("none");
             const xboxManager = await authManager.refresh(data.user.object.meta.refresh);
@@ -98,7 +131,7 @@ export default (accountStorage, settingsStorage, win) => {
             javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
         }
 
-        launchedClient = launcher.launch(options);
+        launchedClient = await launcher.launch(options);
 
         launcher.on('debug', (e) => {
             win.webContents.send('log', {type: 'log', log: e});
@@ -111,12 +144,12 @@ export default (accountStorage, settingsStorage, win) => {
         launcher.on('close', (e) => {
             win.webContents.send('closedGame');
         });
-    });
 
-    ipcMain.handle("stopGame", async (event) => {
-        if (launchedClient !== null) {
-            launchedClient.kill();
-        }
+        ipcMain.handle("stopGame", async (event) => {
+            if (launchedClient) {
+                launchedClient.kill()
+            }
+        });
     });
 
 
@@ -147,6 +180,14 @@ export default (accountStorage, settingsStorage, win) => {
 
         let customVersions = fs.existsSync(path.join(app.getPath("userData"), ".minecraft", "versions")) ? fs.readdirSync(path.join(app.getPath("userData"), ".minecraft", "versions"))
             .filter(directory => officialMojangVersions.find(version => version.number === directory) === undefined)
+            .filter(directory => {
+                if (!fs.existsSync(path.join(app.getPath("userData"), ".minecraft", "versions", directory, `${directory}.json`))) {
+                    return false;
+                }
+
+                let json = JSON.parse(fs.readFileSync(path.join(app.getPath("userData"), ".minecraft", "versions", directory, `${directory}.json`), 'utf8'));
+                return json.assetIndex?.id !== undefined || json.inheritsFrom !== undefined;
+            })
             .map(directory => {
                 let json = JSON.parse(fs.readFileSync(path.join(app.getPath("userData"), ".minecraft", "versions", directory, `${directory}.json`), 'utf8'));
                 let number = json.assetIndex?.id || json.inheritsFrom;

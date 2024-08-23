@@ -26,36 +26,31 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        authors: 'Krzysztof Haller & DevSMarket',
+        authors: 'Krzysztof Haller & DevsMarket',
         description: 'DevsMC - A free and open-source Minecraft launcher.',
         iconUrl: 'https://cdn.khaller.com/devsmarket/devsmc/icon.ico',
         setupIcon: __dirname + '/icons/icon.ico',
+        loadingGif: __dirname + '/icons/loading.gif',
+        copyright: 'DevsMarket',
         name: 'DevsMC',
       }
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin', 'linux'],
+      platforms: ['linux'],
     },
     {
       name: '@electron-forge/maker-dmg',
-      config: {},
+      config: {
+        icon: __dirname + '/icons/icon.icns',
+        name: 'DevsMC',
+      },
     },
     {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          maintainer: 'Krzysztof Haller & DevSMarket',
-          homepage: 'https://devsmarket.eu/devsmc',
-          icon: __dirname + '/icons/icon.png',
-        }
-      },
-    },
-    {
-      name: '@electron-forge/maker-rpm',
-      config: {
-        options: {
-          maintainer: 'Krzysztof Haller & DevSMarket',
+          maintainer: 'Krzysztof Haller & DevsMarket',
           homepage: 'https://devsmarket.eu/devsmc',
           icon: __dirname + '/icons/icon.png',
         }
