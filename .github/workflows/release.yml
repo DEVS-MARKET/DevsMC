@@ -22,7 +22,6 @@ jobs:
 
   publish_on_mac_64:
     runs-on: macos-14-large
-    needs: publish_on_mac
     steps:
       - name: Set up Python for appdmg to be installed
         run: brew install python-setuptools
