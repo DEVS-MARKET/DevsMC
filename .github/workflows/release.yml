@@ -20,8 +20,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: npm run publish
 
-  publish_on_mac_64:
-    runs-on: macos-14-large
+  publish_on_mac:
+    runs-on: macos-latest
     steps:
       - name: Set up Python for appdmg to be installed
         run: brew install python-setuptools
