@@ -32,7 +32,7 @@ module.exports = {
         setupIcon: __dirname + '/icons/icon.ico',
         loadingGif: __dirname + '/icons/loading.gif',
         copyright: 'DevsMarket',
-        name: 'DevsMC',
+        name: 'DevsMC-' + process.platform + '-' + process.arch,
       }
     },
     {
@@ -43,7 +43,7 @@ module.exports = {
       name: '@electron-forge/maker-dmg',
       config: {
         icon: __dirname + '/icons/icon.icns',
-        name: 'DevsMC-' + process.arch,
+        name: 'DevsMC-' + process.platform + '-' + process.arch,
       },
     },
     {
