@@ -8,7 +8,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "env-cmd electron-forge publish",
+    "publish": "electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
   "devDependencies": {
