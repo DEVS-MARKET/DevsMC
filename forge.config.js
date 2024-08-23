@@ -43,7 +43,7 @@ module.exports = {
       name: '@electron-forge/maker-dmg',
       config: {
         icon: __dirname + '/icons/icon.icns',
-        name: 'DevsMC - ' + process.arch,
+        name: 'DevsMC-' + process.arch,
       },
     },
     {
