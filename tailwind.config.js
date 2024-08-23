@@ -1,14 +1,24 @@
+import typography from '@tailwindcss/typography';
+import forms from '@tailwindcss/forms';
+import aspectRatio from '@tailwindcss/aspect-ratio';
+
 /** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   content: [
     "./index.html",
     "./src/**/*.{vue,js,ts,jsx,tsx}",
-    "./node_modules/flowbite/**/*.js"
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow: {
+        'green-glow': '0 0 15px rgba(0, 255, 0, 0.5)',
+        'gray-glow': '0 0 15px rgba(255, 255, 255, 0.5)',
+      }
+    },
   },
   plugins: [
-    require('flowbite/plugin'),
+    typography,
+    forms,
+    aspectRatio,
   ],
 }

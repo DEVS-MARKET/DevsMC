@@ -97,6 +97,18 @@ class Store {
             this.saveConfig(configJs);
         }
     }
+
+    updateByIndex(key, index, value) {
+        const configJs = this.getConfig();
+        if (Array.isArray(configJs[key])) {
+            configJs[key][index] = value;
+            this.saveConfig(configJs);
+        }
+    }
+
+    getAll() {
+        return this.getConfig();
+    }
 }
 
 export default Store;

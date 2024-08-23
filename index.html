@@ -1,11 +1,24 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Devsmc</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <style>
+          html body {
+              overflow: hidden
+          }
+          .background-image {
+              background-image: url('devsmc://background.png');
+              background-size: cover;
+              background-position: center;
+              background-repeat: no-repeat;
+          }
+      </style>
   </head>
   <body class="dark">
-    <div id="devsmc" class="dark:bg-gray-800 h-[100vh]"></div>
-    <script type="module" src="/src/renderer.js"></script>
+    <div id="devsmc" class="background-image h-[100vh]"></div>
+    <script type="module" src="/src/renderer.js" async></script>
   </body>
 </html>

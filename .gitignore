@@ -36,6 +36,9 @@ build/Release
 node_modules/
 jspm_packages/
 
+out/
+/.vite
+src/config.json
 # TypeScript v1 declaration files
 typings/
 
@@ -90,3 +93,4 @@ typings/
 
 # Electron-Forge
 out/
+src/config.json

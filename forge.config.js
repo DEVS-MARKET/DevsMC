@@ -4,12 +4,21 @@ const { FuseV1Options, FuseVersion } = require('@electron/fuses');
 module.exports = {
   packagerConfig: {
     asar: true,
+    name: 'DevsMC',
+    productName: 'DevsMC',
+    icon: 'src/assets/icon',
+    appCategoryType: 'public.app-category.games',
   },
   rebuildConfig: {},
   makers: [
     {
-      name: '@electron-forge/maker-squirrel',
-      config: {},
+      name: "@electron-forge/maker-squirrel",
+      config: {
+        authors: 'Krzysztof Haller & DevSMarket',
+        description: 'DevsMC - A free and open-source Minecraft launcher.',
+        iconUrl: 'https://cdn.khaller.com/devsmarket/devsmc/icon.ico',
+        name: 'DevsMC',
+      }
     },
     {
       name: '@electron-forge/maker-zip',

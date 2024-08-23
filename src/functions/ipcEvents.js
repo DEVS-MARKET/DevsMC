@@ -1,4 +1,4 @@
-import {app, ipcMain, Notification} from "electron";
+import {app, ipcMain, Notification, shell} from "electron";
 import {Auth} from "msmc";
 import { Client, Authenticator } from "minecraft-launcher-core";
 import * as path from "node:path";
@@ -6,6 +6,8 @@ import fs from "node:fs";
 import * as os from "node:os";
 
 const launcher = new Client();
+let launchedClient = null;
+let logFile = null;
 
 function findJdkFolder(folderPath) {
     const files = fs.readdirSync(folderPath);
@@ -72,28 +74,53 @@ export default (accountStorage, settingsStorage, win) => {
 
 
     ipcMain.handle("runGame", async (event, data) => {
-        let options = {
-            authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
-            root: path.join(app.getPath("userData"), ".minecraft"),
-            version: data.launcher.version,
-            memory: data.launcher.memory,
-            javaPath: path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
+        if (data.user.microsoft) {
+            const authManager = new Auth("none");
+            const xboxManager = await authManager.refresh(data.user.object.meta.refresh);
+            const token = await xboxManager.getMinecraft();
+
+            // Find the account in the array and update it
+            let accounts = accountStorage.get("minecraftAccounts");
+            let index = accounts.findIndex(account => account.object.username === data.user.object.username);
+            accounts[index].object = token.mclc(true);
+            accountStorage.set("minecraftAccounts", accounts);
+            data.user.object = token.mclc(true);
         }
 
-        launcher.launch(options);
+        let options = {
+            authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
+            root: settingsStorage.get("path") || path.join(app.getPath("userData"), ".minecraft"),
+            version: data.launcher.version,
+            customArgs: data.launcher.customArgs,
+            memory: data.launcher.memory,
+            javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
+        }
+
+        launchedClient = launcher.launch(options);
 
         launcher.on('debug', (e) => {
-          win.webContents.send('log', e);
+            console.log(e);
+            win.webContents.send('log', {type: 'log', log: e});
         })
 
         launcher.on('data', (e) => {
-          win.webContents.send('log', e);
+          win.webContents.send('log', {type: 'log', log: e});
         })
 
-        launcher.on('download-status', ({ name, current, total}) => {
-            win.webContents.send('log', `Downloading ${name}: ${current} bytes/${total} bytes`);
+        launcher.on('progress', (e) => {
+            win.webContents.send('log', {type: 'download', log: `Downloading: ${e.type} - ${e.task}/${e.total} - ${e.total - e.task} remaining`});
         });
-    })
+
+        launcher.on('close', (e) => {
+            win.webContents.send('closedGame');
+        });
+    });
+
+    ipcMain.handle("stopGame", async (event) => {
+        if (launchedClient !== null) {
+            launchedClient.kill();
+        }
+    });
 
 
     ipcMain.handle("setSettingValue", async (event, key, value) => {
@@ -102,6 +129,10 @@ export default (accountStorage, settingsStorage, win) => {
 
     ipcMain.handle("getSettingValue", async (event, key) => {
         return settingsStorage.get(key);
+    });
+
+    ipcMain.handle("getSettings", async (event) => {
+        return settingsStorage.getAll();
     });
 
     ipcMain.handle("getMinecarftVersions", async (event) => {
@@ -116,7 +147,8 @@ export default (accountStorage, settingsStorage, win) => {
             }
         });
 
-        let customVersions = fs.readdirSync(path.join(app.getPath("userData"), ".minecraft", "versions"))
+
+        let customVersions = fs.existsSync(path.join(app.getPath("userData"), ".minecraft", "versions")) ? fs.readdirSync(path.join(app.getPath("userData"), ".minecraft", "versions"))
             .filter(directory => officialMojangVersions.find(version => version.number === directory) === undefined)
             .map(directory => {
                 let json = JSON.parse(fs.readFileSync(path.join(app.getPath("userData"), ".minecraft", "versions", directory, `${directory}.json`), 'utf8'));
@@ -127,11 +159,30 @@ export default (accountStorage, settingsStorage, win) => {
                     custom: directory,
                     name: `${directory} (${number}) - custom`
                 }
-            });
+            }) : [];
 
-        return {
-            officialVersions: officialMojangVersions,
-            customVersions: customVersions
-        };
+        return [...officialMojangVersions, ...customVersions];
+    });
+
+    ipcMain.handle("getLogsFiles", async (event) => {
+        return fs.readdirSync(path.join(app.getPath("userData"), ".minecraft", "logs"))
+            .filter(file => file.endsWith(".json"))
+            .map(file => {
+                return {
+                    name: file,
+                }
+            });
+    });
+
+    ipcMain.handle("getLogContent", async (event, name) => {
+        return JSON.parse(fs.readFileSync(path.join(app.getPath("userData"), ".minecraft", "logs", name), 'utf8'));
+    });
+
+    ipcMain.handle("openDirectory", async (event, path) => {
+        await shell.openPath(path);
+    });
+
+    ipcMain.handle("getEnv", async (event) => {
+        return JSON.stringify(process.env);
     });
 }

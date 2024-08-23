@@ -24,6 +24,7 @@ export const getBuildConfig = (env) => {
       minify: command === 'build',
     },
     clearScreen: false,
+    publicDir: './src/assets',
   };
 };
 
