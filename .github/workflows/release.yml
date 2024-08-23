@@ -23,7 +23,9 @@ jobs:
   publish_on_mac:
     runs-on: macos-latest
     steps:
-      - run: python3 -m pip install setuptools --break-system-packages
+      - name: Set up Python for appdmg to be installed
+        run: brew install python-setuptools
+
       - uses: actions/checkout@v2
       - uses: actions/setup-node@master
         with:
