@@ -4,7 +4,7 @@
     <div id="sidebar" class="w-64 h-[95vh] bg-zinc-900 text-white p-5 rounded-2xl shadow-lg overflow-y-auto box-border">
       <!-- Side Logo -->
       <div class="flex items-center justify-center mb-6 ml-[-20px]">
-        <img src="devsmc://devsmc-logo.png" alt="DevsMC Logo" class="w-12 h-12 mr-2" />
+        <img :src="`devsmc://devsmc-logo.png`" alt="DevsMC Logo" class="w-12 h-12 mr-2" />
         <span class="text-2xl font-bold">DevsMC</span>
       </div>
 
@@ -43,7 +43,7 @@
 
       <div class="absolute bottom-10 left-5 right-5 flex flex-col px-4">
         <!-- Accounts Info -->
-        <div class="flex items-center mb-4">
+        <div class="flex items-center mb-4" v-if="selectedAccount">
           <img :src="`https://mc-heads.net/avatar/${selectedAccount?.object?.name || selectedAccount?.object?.username}`" alt="User Face" class="w-10 h-10 rounded-full border border-gray-700 mr-4" />
           <div>
             <p class="text-gray-400 text-xs">Welcome back,</p>
@@ -64,9 +64,12 @@
     </div>
 
     <!-- Version List -->
-    <div :style="{ bottom: `${adjustedBottom}px`}" class="absolute left-[483px] z-50">
-      <ul v-if="isMenuVisible" id="version-menu" class="custom-scrollbar absolute right-0 mt-2 w-[10rem] max-h-[20rem] bg-zinc-800 text-white rounded-lg shadow-lg overflow-y-auto">
-        <li v-for="(version, index) in versions" :key="index" class="p-2 hover:bg-zinc-700 cursor-pointer" @click="selectVersion(version.name)">
+    <div :style="{ bottom: `${adjustedBottom}px`}" class="absolute left-[560px] z-50">
+      <ul v-if="isMenuVisible" id="version-menu" class="custom-scrollbar absolute right-0 mt-2 w-[15rem] max-h-[20rem] bg-zinc-800 text-white rounded-lg shadow-lg overflow-y-auto">
+        <!-- Search bar -->
+        <input type="text" v-model="searchedVersion" @input="filterVersions" class="w-full p-2 bg-zinc-700 text-white border-b border-gray-700" placeholder="Search version">
+
+        <li v-for="(version, index) in filteredVersions" :key="index" class="p-2 hover:bg-zinc-700 cursor-pointer" @click="selectVersion(version.name)">
           {{ version.name }}
         </li>
       </ul>
@@ -88,10 +91,10 @@
       </div>
       <!-- Play Button -->
       <div class="flex flex-grow justify-center">
-        <button @click="runGame" v-if="!isGameRunned" :disabled="isGameRunned" class="text-white py-4 px-8 w-64 rounded-full flex flex-col items-center shadow-green-glow" :class="isGameRunned ? 'bg-gray-600 hover:bg-gray-700' : 'bg-green-600 hover:bg-green-700'">
+        <button @click="runGame" v-if="!isGameRunned" :disabled="isGameRunned" class="text-white py-4 px-8 w-64 rounded-full flex flex-col items-center" :class="isGameRunned ? 'bg-gray-600 hover:bg-gray-700 shadow-gray-glow' : 'bg-green-600 hover:bg-green-700 shadow-green-glow'">
           <span class="text-2xl font-bold">PLAY</span>
         </button>
-        <button @click="killGame" v-if="isGameRunned && selectedAccount" :disabled="!isGameRunned" class="text-white py-4 px-8 w-64 rounded-full flex flex-col items-center shadow-green-glow" :class="!isGameRunned ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'">
+        <button @click="killGame" v-if="isGameRunned && selectedAccount" :disabled="!isGameRunned" class="text-white py-4 px-8 w-64 rounded-full flex flex-col items-center" :class="!isGameRunned ? 'bg-gray-600 hover:bg-gray-700 shadow-gray-glow' : 'bg-red-600 hover:bg-red-700 shadow-red-glow'">
           <span class="text-2xl font-bold">STOP</span>
         </button>
       </div>
@@ -119,6 +122,7 @@ export default {
       selectedItem: 'Home',
       contentText: 'Welcome to the Home section!',
       versions: [],
+      filteredVersions: [],
       initialBottom: 435,
       maxItems: 8,
       reductionPerMissingItem: 40,
@@ -128,6 +132,7 @@ export default {
       isGameRunned: localStorage.getItem('isGameRunned') || false,
       selectedAccount: JSON.parse(localStorage.getItem('selectedAccount')) || null,
       minecraftDirectory: '',
+      searchedVersion: '',
     };
   },
   components: {
@@ -153,6 +158,7 @@ export default {
 
     document.addEventListener('click', this.closeMenuOnOutsideClick);
     this.versions = await window.devsApi.getVersions();
+    this.filteredVersions = this.versions;
     if (!this.selectedAccount) {
       this.isGameRunned = true;
       window.devsApi.changeTitle('No selected account');
@@ -165,6 +171,7 @@ export default {
 
     window.devsApi.onClosedGame(() => {
       this.isGameRunned = false;
+      console.log('Game closed')
     });
   },
   beforeDestroy() {
@@ -172,7 +179,7 @@ export default {
   },
   methods: {
     openDir() {
-      window.devsApi.openDir(this.minecraftDirectory);
+      window.devsApi.openDirectory(this.minecraftDirectory);
     },
     pushTo(route) {
       if (this.isGameRunned) {
@@ -180,6 +187,9 @@ export default {
       }
 
       this.$router.push({ path: route });
+    },
+    filterVersions() {
+      this.filteredVersions = this.versions.filter(version => version.name.toLowerCase().includes(this.searchedVersion.toLowerCase()));
     },
     updateSelectedAccount() {
       this.selectedAccount = JSON.parse(localStorage.getItem('selectedAccount'));

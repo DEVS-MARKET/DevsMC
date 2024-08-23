@@ -8,7 +8,7 @@
     "start": "electron-forge start",
     "package": "electron-forge package",
     "make": "electron-forge make",
-    "publish": "electron-forge publish",
+    "publish": "env-cmd electron-forge publish",
     "lint": "echo \"No linting configured\""
   },
   "devDependencies": {
@@ -37,6 +37,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@electron-forge/publisher-github": "^7.4.0",
     "@tailwindcss/aspect-ratio": "^0.4.2",
     "@tailwindcss/forms": "^0.5.7",
     "@tailwindcss/typography": "^0.5.14",
@@ -52,6 +53,7 @@
     "node-downloader-helper": "^2.1.9",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
+    "update-electron-app": "^3.0.0",
     "vue": "3.4.38",
     "vue-router": "^4.0.13"
   }

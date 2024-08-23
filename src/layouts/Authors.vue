@@ -12,7 +12,7 @@
       <div class="flex items-center justify-center mb-6">
         <div class="flex items-center">
           <!-- Logo -->
-          <img src="devsmc://devsmarket.png" class="w-12 h-12 rounded-full flex items-center justify-center mr-4">
+          <img :src="`devsmc://devsmarket.png`" class="w-12 h-12 rounded-full flex items-center justify-center mr-4">
           <!-- DevsMarket Title -->
           <div class="text-left">
             <p class="text-sm text-gray-400">Created by</p>

@@ -6,9 +6,21 @@ module.exports = {
     asar: true,
     name: 'DevsMC',
     productName: 'DevsMC',
-    icon: 'src/assets/icon',
+    icon: __dirname + '/icons/icon',
     appCategoryType: 'public.app-category.games',
   },
+  publishers: [
+    {
+      name: '@electron-forge/publisher-github',
+      config: {
+        repository: {
+          owner: 'DEVS-MARKET',
+          name: 'DevsMC',
+        },
+        prerelease: true,
+      },
+    }
+  ],
   rebuildConfig: {},
   makers: [
     {
@@ -17,12 +29,13 @@ module.exports = {
         authors: 'Krzysztof Haller & DevSMarket',
         description: 'DevsMC - A free and open-source Minecraft launcher.',
         iconUrl: 'https://cdn.khaller.com/devsmarket/devsmc/icon.ico',
+        setupIcon: __dirname + '/icons/icon.ico',
         name: 'DevsMC',
       }
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['darwin'],
+      platforms: ['darwin', 'linux'],
     },
     {
       name: '@electron-forge/maker-dmg',
@@ -30,11 +43,23 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-deb',
-      config: {},
+      config: {
+        options: {
+          maintainer: 'Krzysztof Haller & DevSMarket',
+          homepage: 'https://devsmarket.eu/devsmc',
+          icon: __dirname + '/icons/icon.png',
+        }
+      },
     },
     {
       name: '@electron-forge/maker-rpm',
-      config: {},
+      config: {
+        options: {
+          maintainer: 'Krzysztof Haller & DevSMarket',
+          homepage: 'https://devsmarket.eu/devsmc',
+          icon: __dirname + '/icons/icon.png',
+        }
+      },
     },
   ],
   plugins: [

@@ -7,10 +7,20 @@ import fs from "fs";
 import ipcEvents from "./functions/ipcEvents";
 import * as url from "node:url";
 import seedDefaultSettings from "./seedDefaultSettings";
+import { updateElectronApp } from "update-electron-app";
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     const securityToken = crypto.randomBytes(64).toString('hex');
     fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
+}
+
+if (!MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+    updateElectronApp({
+        repo: "DEVS-MARKET/DevsMC",
+        updateInterval: "1 hour",
+        notifyUser: true,
+    });
+
 }
 
 const accountStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'accounts.json');
@@ -43,11 +53,11 @@ const createWindow = () => {
 
   if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
     mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+    mainWindow.webContents.openDevTools();
   } else {
     mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
   }
 
-  mainWindow.webContents.openDevTools();
 
   win = mainWindow;
   ipcEvents(accountStorage, settingsStorage, win)

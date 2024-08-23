@@ -29,17 +29,18 @@ export default {
     };
   },
   async mounted() {
-    fetch(JSON.parse(await window.devsApi.getEnv()).STRAPI_URL, {
+    let connectData = await window.devsApi.getEnv();
+    fetch(connectData.strapi_url, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + JSON.parse(await window.devsApi.getEnv()).STRAPI_KEY
+        'Authorization': `Bearer ${connectData.strapi_key}`
       }
     })
     .then(response => response.json())
     .then(data => {
       this.news = data.data;
-    });
+    })
   }
 }
 </script>

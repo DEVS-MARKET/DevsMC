@@ -13,6 +13,7 @@ export default {
       boxShadow: {
         'green-glow': '0 0 15px rgba(0, 255, 0, 0.5)',
         'gray-glow': '0 0 15px rgba(255, 255, 255, 0.5)',
+        'red-glow': '0 0 15px rgba(255, 0, 0, 0.5)',
       }
     },
   },

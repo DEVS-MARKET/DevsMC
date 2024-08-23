@@ -1,11 +1,11 @@
 import {app, ipcMain, Notification, shell} from "electron";
 import {Auth} from "msmc";
-import { Client, Authenticator } from "minecraft-launcher-core";
+import {Authenticator, Client} from "minecraft-launcher-core";
 import * as path from "node:path";
 import fs from "node:fs";
 import * as os from "node:os";
 
-const launcher = new Client();
+let launcher = null;
 let launchedClient = null;
 let logFile = null;
 
@@ -87,6 +87,8 @@ export default (accountStorage, settingsStorage, win) => {
             data.user.object = token.mclc(true);
         }
 
+        launcher = new Client();
+
         let options = {
             authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
             root: settingsStorage.get("path") || path.join(app.getPath("userData"), ".minecraft"),
@@ -99,17 +101,12 @@ export default (accountStorage, settingsStorage, win) => {
         launchedClient = launcher.launch(options);
 
         launcher.on('debug', (e) => {
-            console.log(e);
             win.webContents.send('log', {type: 'log', log: e});
         })
 
         launcher.on('data', (e) => {
           win.webContents.send('log', {type: 'log', log: e});
         })
-
-        launcher.on('progress', (e) => {
-            win.webContents.send('log', {type: 'download', log: `Downloading: ${e.type} - ${e.task}/${e.total} - ${e.total - e.task} remaining`});
-        });
 
         launcher.on('close', (e) => {
             win.webContents.send('closedGame');
@@ -183,6 +180,9 @@ export default (accountStorage, settingsStorage, win) => {
     });
 
     ipcMain.handle("getEnv", async (event) => {
-        return JSON.stringify(process.env);
+        return {
+            strapi_key: "ca416e78d7a6dd2851889d06cdb9c49a8a2dbc7910890649306ff9f592c32036eb6661a746f5d995d2ceca7791ad8724e7921814b31248b6d24affadee5a3aca079852bfd607163f705f9191f4f9e9208f2cf6eff4645c6aad68304c6aed6133367cb157047cf1817df86044fc580dd9b9f6bc5885df3485306769f99a6d98ba",
+            strapi_url: "https://strapi.khaller.com/api/news?sort[0]=id:desc",
+        };
     });
 }
