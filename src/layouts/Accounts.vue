@@ -1,7 +1,7 @@
 <template>
   <!-- Main Accounts Screen -->
   <div id="accounts-background" class="hidden fixed z-50 inset-0 bg-black bg-opacity-50 flex items-center justify-center transition-opacity duration-300">
-    <Login v-if="showLogin" />
+    <Login @created-account="createdAccount" @closed="this.closeAccounts()" v-if="showLogin" />
     <div v-if="!showLogin" id="accounts-comp" class="bg-zinc-800 text-white p-8 rounded-lg shadow-lg max-w-lg w-full opacity-1 transform scale-[0.1] transition-transform duration-300">
       <!-- Title -->
       <h2 class="text-xl font-semibold">Select New Account</h2>
@@ -21,7 +21,7 @@
 
       <!-- Buttons -->
       <div class="flex justify-between">
-        <button @click="openAccounts()" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded">Add new Account</button>
+        <button @click="openLogin()" class="bg-green-500 hover:bg-green-600 text-white font-medium py-2 px-4 rounded">Add new Account</button>
         <button @click="closeAccounts()" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded">Close</button>
       </div>
     </div>
@@ -33,23 +33,41 @@
 import Login from './Login.vue'
 
 export default {
-  emits: ['update-account'],
+  emits: ['update-account', 'closed'],
   data() {
     return {
       showLogin: false,
       accounts: [],
-      activeAccount: null,
+      activeAccount: '',
     };
   },
   mounted() {
-    window.devsApi.getMinecraftAccounts().then((accounts) => {
-      this.accounts = accounts;
-    });
+    this.getAccounts();
   },
   components: {
     Login,
   },
   methods: {
+    getAccounts() {
+      window.devsApi.getMinecraftAccounts().then((accounts) => {
+        this.accounts = accounts;
+        let activeAccount = JSON.parse(localStorage.getItem('selectedAccount'));
+        if (activeAccount) {
+          this.activeAccount = this.accounts.findIndex((account) => account.object.username === activeAccount.object.username || account.object.name === activeAccount.object.name);
+        }
+      });
+    },
+    async deleteAccount(account) {
+      this.activeAccount = '';
+      let index = this.accounts.findIndex((acc) => acc.object.username === account.object.username || acc.object.name === account.object.name);
+      await window.devsApi.removeAccount(index);
+      this.getAccounts();
+    },
+    createdAccount(object) {
+      this.selectAccount(object.index, object.account);
+      this.getAccounts();
+      this.closeAccounts();
+    },
     selectAccount(index, account) {
       localStorage.setItem('selectedAccount', JSON.stringify(account));
       window.devsApi.changeTitle(`Playing as ${account.object.name || account.object.username}`);
@@ -57,22 +75,27 @@ export default {
       this.$emit('update-account');
     },
     closeAccounts() {
+      if (this.activeAccount === '') {
+        return;
+      }
+
       this.$nextTick(() => {
-        const accBackground = document.getElementById('accounts-background');
-        if (accBackground) {
-          accBackground.classList.remove('acc-active');
-          accBackground.classList.add('hidden');
+        if (document.getElementById('accounts-background')) {
+          document.getElementById('accounts-background').classList.remove('acc-active');
+          document.getElementById('accounts-background').classList.add('hidden');
         }
+        this.showLogin = false;
+        this.$emit("closed");
       });
     },
-    openAccounts() {
-      const accComp = document.getElementById('accounts-comp');
+    openLogin() {
+      let accComp = document.getElementById('accounts-comp');
       if(accComp){
         accComp.classList.add('scale-[0.1]');
         setTimeout(() => {
           this.showLogin = true;
           this.$nextTick(() => {
-            const loginComp = document.getElementById('login-comp');
+            let loginComp = document.getElementById('login-comp');
             if(loginComp){
               setTimeout(() => {
                 loginComp.classList.remove('scale-[0.1]');

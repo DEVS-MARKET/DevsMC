@@ -61,4 +61,5 @@ contextBridge.exposeInMainWorld('devsApi', {
     // Main into renderer communication
     onLogReceive: (callback) => ipcRenderer.on('log', (event, data) => callback(data)),
     onClosedGame: (callback) => ipcRenderer.on('closedGame', (event, data) => callback(data)),
+    onDownloading: (callback) => ipcRenderer.on('downloading', (event, data) => callback(data)),
 });

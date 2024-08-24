@@ -14,7 +14,7 @@ if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
 }
 
-if (!MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+if (!MAIN_WINDOW_VITE_DEV_SERVER_URL && process.platform === "win32") {
     updateElectronApp({
         repo: "DEVS-MARKET/DevsMC",
         updateInterval: "1 hour",

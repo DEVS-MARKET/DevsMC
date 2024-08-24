@@ -27,27 +27,34 @@ export default {
     };
   },
   methods: {
-    loginMicrosoft() {
-      window.devsApi.login();
+    async loginMicrosoft() {
+      const response = await window.devsApi.login();
+      if (response) {
+        this.$emit('created-account', response);
+        this.closeWindow();
+      }
     },
     async addNonPremium() {
       const response = await window.devsApi.nopremium(this.nickname);
+      if (response) {
+        this.$emit('created-account', response);
+        this.closeWindow();
+      }
       this.nickname = '';
     },
     closeWindow(){
-      const loginComp = document.getElementById('login-comp');
-      if(loginComp){
-        loginComp.classList.add('scale-[0.1]');
-        const accBackground = document.getElementById('accounts-background');
-        if (accBackground) {
-          accBackground.classList.remove('acc-active');
-          accBackground.classList.add('acc-inactive');
+      if (JSON.parse(localStorage.getItem('selectedAccount'))) {
+        const loginComp = document.getElementById('login-comp');
+        if(loginComp){
+          loginComp.classList.add('scale-[0.1]');
           setTimeout(() => {
-            accBackground.classList.add('hidden');
-            window.location.reload();
-          }, 100);
+            loginComp.classList.remove('scale-[0.1]')
+            this.$emit('closed');
+          }, 300);
         }
       }
+
+      return;
     }
   }
 }

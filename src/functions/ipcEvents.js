@@ -6,7 +6,7 @@ import fs from "node:fs";
 import DiscordRCP from "discord-rpc";
 import * as os from "node:os";
 
-let launcher = null;
+let launcher = new Client();
 let launchedClient = null;
 let logFile = null;
 const startTimestamp = new Date();
@@ -53,15 +53,46 @@ function findJdkFolder(folderPath) {
 }
 
 export default (accountStorage, settingsStorage, win) => {
+    launcher.on('debug', (e) => {
+        win.webContents.send('log', {type: 'log', log: e});
+    })
+
+    launcher.on('data', (e) => {
+        win.webContents.send('log', {type: 'log', log: e});
+    })
+
+    launcher.on('close', (e) => {
+        win.webContents.send('closedGame');
+    });
+
+    launcher.on('download-status', (e) => {
+        win.webContents.send('downloading', {
+            percent: e.total === 0 ? 0 : Math.round(e.current / e.total * 100)
+        })
+    });
+
     ipcMain.handle("login", async (event) => {
         const authManager = new Auth("select_account");
         const xboxManager = await authManager.launch("electron")
         const token = await xboxManager.getMinecraft();
-
+        let obj = token.mclc(true);
         accountStorage.pushToArray("minecraftAccounts", {
             microsoft: true,
-            object: token.mclc(true)
+            object: obj
         });
+
+        new Notification({
+            title: "Account added",
+            body: `Account ${obj.name} has been added.`,
+        }).show();
+
+        let accounts = accountStorage.get("minecraftAccounts");
+        let index = accounts.findIndex(account => account.object.name === obj.name);
+
+        return {
+            index: index,
+            account: accounts[index]
+        };
     });
 
     ipcMain.handle("login-nopremium", async (event, username) => {
@@ -71,6 +102,20 @@ export default (accountStorage, settingsStorage, win) => {
                 username: username
             }
         });
+
+        new Notification({
+            title: "Account added",
+            body: `Account ${username} has been added.`,
+        }).show();
+
+        // Find the account in the array and get
+        let accounts = accountStorage.get("minecraftAccounts");
+        let index = accounts.findIndex(account => account.object.username === username);
+
+        return {
+            index: index,
+            account: accounts[index]
+        };
     })
 
     ipcMain.handle("getMinecraftAccounts", async (event) => {
@@ -78,7 +123,7 @@ export default (accountStorage, settingsStorage, win) => {
     });
 
     ipcMain.handle("removeAccount", async (event, index) => {
-        let temp = storage.get("minecraftAccounts")[index];
+        let temp = accountStorage.get("minecraftAccounts")[index];
         new Notification({
             title: "Account removed",
             body: `Account ${temp.object.username || temp.object.name} has been removed.`,
@@ -95,6 +140,7 @@ export default (accountStorage, settingsStorage, win) => {
 
     ipcMain.handle("changeTitle", async (event, title) => {
         win.setTitle(title + " - DevsMC Launcher");
+        text = title;
     });
 
     ipcMain.handle("getPlatform", async (event) => {
@@ -120,8 +166,6 @@ export default (accountStorage, settingsStorage, win) => {
             data.user.object = token.mclc(true);
         }
 
-        launcher = new Client();
-
         let options = {
             authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
             root: settingsStorage.get("path") || path.join(app.getPath("userData"), ".minecraft"),
@@ -131,25 +175,16 @@ export default (accountStorage, settingsStorage, win) => {
             javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
         }
 
-        launchedClient = await launcher.launch(options);
+        launcher.launch(options)
+            .then((launch) => {
+                launchedClient = launch;
+            });
+    });
 
-        launcher.on('debug', (e) => {
-            win.webContents.send('log', {type: 'log', log: e});
-        })
-
-        launcher.on('data', (e) => {
-          win.webContents.send('log', {type: 'log', log: e});
-        })
-
-        launcher.on('close', (e) => {
-            win.webContents.send('closedGame');
-        });
-
-        ipcMain.handle("stopGame", async (event) => {
-            if (launchedClient) {
-                launchedClient.kill()
-            }
-        });
+    ipcMain.handle("stopGame", async (event) => {
+        if (launchedClient) {
+            launchedClient.kill()
+        }
     });
 
 

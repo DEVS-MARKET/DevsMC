@@ -56,7 +56,7 @@
           <button @click="openAccounts()" class="bg-blue-600 text-white py-1 px-3 rounded-md font-semibold hover:bg-blue-700 text-sm">
             Change Account
           </button>
-          <button class="bg-transparent border border-gray-300 text-gray-300 py-1 px-3 rounded-md font-semibold hover:bg-gray-100 hover:text-gray-900 text-sm">
+          <button @click="deleteAccount()" class="bg-transparent border border-gray-300 text-gray-300 py-1 px-3 rounded-md font-semibold hover:bg-gray-100 hover:text-gray-900 text-sm">
             Log out
           </button>
         </div>
@@ -109,12 +109,13 @@
 
   <!-- Accounts Window -->
   <div id="window" class="z-100">
-    <Accounts @update-account="updateSelectedAccount()" v-if="showAccounts" />
+    <Accounts @closed="closedAccounts" @update-account="updateSelectedAccount()" ref="accountsComponent" v-show="showAccounts" />
   </div>
 </template>
 
 <script>
 import Accounts from './layouts/Accounts.vue'
+import {toRaw} from "vue";
 
 export default {
   data() {
@@ -153,6 +154,7 @@ export default {
     if (!this.selectedAccount) {
       this.isGameRunned = true;
       window.devsApi.changeTitle('No selected account');
+      this.openAccounts();
     }
 
     this.minecraftDirectory = await window.devsApi.getSettingValue('path');
@@ -179,6 +181,13 @@ export default {
 
       this.$router.push({ path: route });
     },
+    async deleteAccount() {
+      await this.$refs.accountsComponent.deleteAccount(toRaw(this.selectedAccount));
+      localStorage.removeItem('selectedAccount');
+      this.selectedAccount = null;
+      this.isGameRunned = true;
+      this.openAccounts();
+    },
     filterVersions() {
       this.filteredVersions = this.versions.filter(version => version.name.toLowerCase().includes(this.searchedVersion.toLowerCase()));
       this.adjustBottom();
@@ -186,6 +195,8 @@ export default {
     updateSelectedAccount() {
       this.selectedAccount = JSON.parse(localStorage.getItem('selectedAccount'));
       this.isGameRunned = false;
+      window.devsApi.changeTitle(`Playing as ${this.selectedAccount.object.name || this.selectedAccount.object.username}`);
+      this.showAccounts = false;
     },
     adjustBottom() {
       const itemCount = this.filteredVersions.length;
@@ -244,18 +255,33 @@ export default {
     openAccounts() {
       this.showAccounts = true;
       this.$nextTick(() => {
-        const accBackground = document.getElementById('accounts-background');
-        if (accBackground) {
-          accBackground.classList.remove('hidden');
-          accBackground.classList.add('acc-active');
+        if (document.getElementById('accounts-background')) {
+          document.getElementById('accounts-background').classList.remove('hidden');
+          document.getElementById('accounts-background').classList.add('acc-active');
         }
-        const accComp = document.getElementById('accounts-comp');
-        if(accComp){
+        if(document.getElementById('accounts-comp')){
           setTimeout(() => {
-            accComp.classList.remove('scale-[0.1]');
+            document.getElementById('accounts-comp').classList.remove('scale-[0.1]');
           }, 100);
         }
       });
+    },
+
+    closedAccounts() {
+      if (this.selectedAccount) {
+        this.showAccounts = false;
+        this.$nextTick(() => {
+          if (document.getElementById('accounts-background')) {
+            document.getElementById('accounts-background').classList.remove('acc-active');
+            document.getElementById('accounts-background').classList.add('hidden');
+          }
+          if(document.getElementById('accounts-comp')){
+            setTimeout(() => {
+              document.getElementById('accounts-comp').classList.remove('scale-[0.1]');
+            }, 100);
+          }
+        });
+      }
     }
   }
 }
