@@ -5,6 +5,7 @@ import {
   external,
   pluginHotRestart,
 } from './vite.base.config.mjs';
+import EnvironmentPlugin from "vite-plugin-environment";
 
 // https://vitejs.dev/config
 export default defineConfig((env) => {
@@ -23,7 +24,12 @@ export default defineConfig((env) => {
         external,
       },
     },
-    plugins: [pluginHotRestart('restart')],
+    plugins: [pluginHotRestart('restart'), EnvironmentPlugin({
+        STRAPI_TOKEN: process.env.STRAPI_TOKEN,
+        STRAPI_URL: process.env.STRAPI_URL,
+        GA4_GA_ID: process.env.GA4_GA_ID,
+        GA4_SECRET: process.env.GA4_SECRET,
+    })],
     define,
     resolve: {
       // Load the Node.js entry.

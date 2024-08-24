@@ -5,6 +5,7 @@ import * as path from "node:path";
 import fs from "node:fs";
 import DiscordRCP from "discord-rpc";
 import * as os from "node:os";
+import Analytics from 'electron-google-analytics4';
 
 let launcher = new Client();
 let launchedClient = null;
@@ -15,6 +16,9 @@ DiscordRCP.register('1276294581058666497');
 let RPC = new DiscordRCP.Client({
     transport: 'ipc',
 })
+
+const analytics = new Analytics(process.env.GA4_GA_ID, process.env.GA4_SECRET);
+analytics.event('page_view');
 
 
 RPC.on('ready', () => {
@@ -88,6 +92,8 @@ export default (accountStorage, settingsStorage, win) => {
 
         let accounts = accountStorage.get("minecraftAccounts");
         let index = accounts.findIndex(account => account.object.name === obj.name);
+        analytics.set("user_name", accounts[index].object.name || accounts[index].object.username).event("login");
+
 
         return {
             index: index,
@@ -257,8 +263,10 @@ export default (accountStorage, settingsStorage, win) => {
 
     ipcMain.handle("getEnv", async (event) => {
         return {
-            strapi_key: "ca416e78d7a6dd2851889d06cdb9c49a8a2dbc7910890649306ff9f592c32036eb6661a746f5d995d2ceca7791ad8724e7921814b31248b6d24affadee5a3aca079852bfd607163f705f9191f4f9e9208f2cf6eff4645c6aad68304c6aed6133367cb157047cf1817df86044fc580dd9b9f6bc5885df3485306769f99a6d98ba",
-            strapi_url: "https://strapi.khaller.com/api/news?sort[0]=id:desc",
+            strapi_key: process.env.STRAPI_TOKEN,
+            strapi_url: process.env.STRAPI_URL,
+            ga4_id: process.env.GA4_GA_ID,
+            ga4_secret: process.env.GA4_SECRET,
         };
     });
 }

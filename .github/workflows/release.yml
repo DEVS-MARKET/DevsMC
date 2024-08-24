@@ -18,6 +18,10 @@ jobs:
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GA4_GA_ID: ${{ secrets.GA4_GA_ID }}
+          GA4_SECRET: ${{ secrets.GA4_SECRET }}
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
         run: npm run publish
 
   publish_on_mac:
@@ -35,6 +39,10 @@ jobs:
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GA4_GA_ID: ${{ secrets.GA4_GA_ID }}
+          GA4_SECRET: ${{ secrets.GA4_SECRET }}
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
         run: npm run publish
 
   publish_on_win:
@@ -49,4 +57,8 @@ jobs:
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GA4_GA_ID: ${{ secrets.GA4_GA_ID }}
+          GA4_SECRET: ${{ secrets.GA4_SECRET }}
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
         run: npm run publish
