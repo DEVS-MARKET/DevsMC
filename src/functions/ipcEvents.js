@@ -5,8 +5,6 @@ import * as path from "node:path";
 import fs from "node:fs";
 import DiscordRCP from "discord-rpc";
 import * as os from "node:os";
-import Analytics from 'electron-google-analytics4';
-
 let launcher = new Client();
 let launchedClient = null;
 let logFile = null;
@@ -16,9 +14,6 @@ DiscordRCP.register('1276294581058666497');
 let RPC = new DiscordRCP.Client({
     transport: 'ipc',
 })
-
-const analytics = new Analytics(process.env.GA4_GA_ID, process.env.GA4_SECRET);
-analytics.event('page_view');
 
 
 RPC.on('ready', () => {
@@ -56,7 +51,9 @@ function findJdkFolder(folderPath) {
     return jdkFolder ? path.join(folderPath, jdkFolder) : null;
 }
 
-export default (accountStorage, settingsStorage, win) => {
+export default (accountStorage, settingsStorage, win, analytics) => {
+    analytics.event('app_launch');
+
     launcher.on('debug', (e) => {
         win.webContents.send('log', {type: 'log', log: e});
     })
@@ -92,7 +89,10 @@ export default (accountStorage, settingsStorage, win) => {
 
         let accounts = accountStorage.get("minecraftAccounts");
         let index = accounts.findIndex(account => account.object.name === obj.name);
-        analytics.set("user_name", accounts[index].object.name || accounts[index].object.username).event("login");
+        await analytics
+            .set("user_name", accounts[index].object.name || accounts[index].object.username)
+            .set("microsoft", accounts[index].microsoft)
+            .event("create_account");
 
 
         return {
@@ -117,6 +117,11 @@ export default (accountStorage, settingsStorage, win) => {
         // Find the account in the array and get
         let accounts = accountStorage.get("minecraftAccounts");
         let index = accounts.findIndex(account => account.object.username === username);
+
+        await analytics
+            .set("user_name", accounts[index].object.name || accounts[index].object.username)
+            .set("microsoft", accounts[index].microsoft)
+            .event("create_account");
 
         return {
             index: index,
@@ -180,6 +185,10 @@ export default (accountStorage, settingsStorage, win) => {
             memory: data.launcher.memory,
             javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
         }
+
+        await analytics
+            .set("version", data.launcher.version.number)
+            .event("start_game");
 
         launcher.launch(options)
             .then((launch) => {

@@ -9,6 +9,9 @@ import * as url from "node:url";
 import seedDefaultSettings from "./seedDefaultSettings";
 import {updateElectronApp, UpdateSourceType} from "update-electron-app";
 
+const Analytics = require('electron-google-analytics4').default;
+const analytics = new Analytics(process.env.GA4_GA_ID, process.env.GA4_SECRET);
+
 if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     const securityToken = crypto.randomBytes(64).toString('hex');
     fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
@@ -26,6 +29,7 @@ const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userDat
 
 let win;
 if (require('electron-squirrel-startup')) {
+  analytics.event("install");
   app.quit();
 }
 
@@ -58,7 +62,7 @@ const createWindow = () => {
 
 
   win = mainWindow;
-  ipcEvents(accountStorage, settingsStorage, win)
+  ipcEvents(accountStorage, settingsStorage, win, analytics);
   app.setAppUserModelId(MAIN_WINDOW_VITE_DEV_SERVER_URL ? process.execPath : "DevsMC Launcher");
 };
 
