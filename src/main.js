@@ -15,10 +15,7 @@ if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
 }
 
 updateElectronApp({
-    updateSource: {
-        type: UpdateSourceType.ElectronPublicUpdateService,
-        repo: "DEVS-MARKET/DevsMC",
-    },
+    repo: "DEVS-MARKET/DevsMC",
     updateInterval: "1 hour",
     notifyUser: true,
 });
