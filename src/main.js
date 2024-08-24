@@ -34,7 +34,7 @@ if (require('electron-squirrel-startup')) {
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
     analytics.event("install");
-    fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "");
+    fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "locked");
 }
 
 seedDefaultSettings(settingsStorage, app);
