@@ -29,8 +29,12 @@ const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userDat
 
 let win;
 if (require('electron-squirrel-startup')) {
-  analytics.event("install");
   app.quit();
+}
+
+if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
+    analytics.event("install");
+    fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "");
 }
 
 seedDefaultSettings(settingsStorage, app);
