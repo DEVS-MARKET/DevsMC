@@ -7,7 +7,7 @@ import fs from "fs";
 import ipcEvents from "./functions/ipcEvents";
 import * as url from "node:url";
 import seedDefaultSettings from "./seedDefaultSettings";
-import { updateElectronApp } from "update-electron-app";
+import {updateElectronApp, UpdateSourceType} from "update-electron-app";
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     const securityToken = crypto.randomBytes(64).toString('hex');
@@ -16,6 +16,7 @@ if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
 
 updateElectronApp({
     updateSource: {
+        type: UpdateSourceType.ElectronPublicUpdateService,
         repo: "DEVS-MARKET/DevsMC",
     },
     updateInterval: "1 hour",
