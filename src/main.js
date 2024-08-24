@@ -14,14 +14,11 @@ if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
 }
 
-if (!MAIN_WINDOW_VITE_DEV_SERVER_URL && process.platform === "win32") {
-    updateElectronApp({
-        repo: "DEVS-MARKET/DevsMC",
-        updateInterval: "1 hour",
-        notifyUser: true,
-    });
-
-}
+updateElectronApp({
+    repo: "DEVS-MARKET/DevsMC",
+    updateInterval: "1 hour",
+    notifyUser: true,
+});
 
 const accountStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'accounts.json');
 const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'settings.json');

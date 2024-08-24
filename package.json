@@ -1,7 +1,7 @@
 {
   "name": "DevsMC",
   "productName": "DevsMC",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "DevsMC - A free and open-source Minecraft launcher",
   "main": ".vite/build/main.js",
   "scripts": {
