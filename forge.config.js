@@ -37,7 +37,10 @@ module.exports = {
     },
     {
       name: '@electron-forge/maker-zip',
-      platforms: ['linux'],
+      platforms: ['linux', 'darwin'],
+        config: {
+            name: 'DevsMC-' + process.platform + '-' + process.arch,
+        },
     },
     {
       name: '@electron-forge/maker-dmg',
