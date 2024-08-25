@@ -17,17 +17,39 @@ function findJdkFolder(folderPath) {
 }
 export function checkJavaInstallation (app){
     return new Promise((resolve, reject) => {
-        let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
+        if (process.platform === 'win32') {
+            let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
 
-        console.log(filePath)
-        exec(`"${path.normalize(filePath)}" -version`)
-            .then((result) => {
-                resolve(result);
-            })
-            .catch((error) => {
-                console.log(error);
-                reject(error);
-            });
+            console.log(filePath)
+            exec(`"${path.normalize(filePath)}" -version`)
+                .then((result) => {
+                    resolve(result);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        } else if (process.platform === 'darwin') {
+            let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'Contents', 'Home', 'bin', 'java');
+            exec(`"${path.normalize(filePath)}" -version`)
+                .then((result) => {
+                    resolve(result);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        } else if (process.platform === 'linux') {
+            let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
+            exec(`"${path.normalize(filePath)}" -version`)
+                .then((result) => {
+                    resolve(result);
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject(error);
+                });
+        }
     })
 }
 
@@ -38,11 +60,11 @@ export function installJava (app, win, settingsStorage) {
             url = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jre_x64_windows_hotspot_21.0.4_7.zip";
             destination = path.join(app.getPath('userData'), 'OpenJDK21U-jre_x64_windows_hotspot_21.0.4_7.zip');
         } else if (process.platform === 'darwin') {
-            url = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jre_" + process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64' + "_mac_hotspot_21.0.4_7.tar.gz";
-            destination = path.join(app.getPath('userData'), 'OpenJDK21U-jre_' + process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64' + '_mac_hotspot_21.0.4_7.tar.gz');
+            url = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jre_" + (process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64') + "_mac_hotspot_21.0.4_7.tar.gz";
+            destination = path.join(app.getPath('userData'), 'OpenJDK21U-jre_' + (process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64') + '_mac_hotspot_21.0.4_7.tar.gz');
         } else if (process.platform === 'linux') {
-            url = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jre_" + process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64' + "_linux_hotspot_21.0.4_7.tar.gz"
-            destination = path.join(app.getPath('userData'), 'OpenJDK21U-jre_' + process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64' + '_linux_hotspot_21.0.4_7.tar.gz');
+            url = "https://github.com/adoptium/temurin21-binaries/releases/download/jdk-21.0.4%2B7/OpenJDK21U-jre_" + (process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64') + "_linux_hotspot_21.0.4_7.tar.gz"
+            destination = path.join(app.getPath('userData'), 'OpenJDK21U-jre_' + (process.arch === 'arm' || process.arch === 'arm64' ? 'aarch64' : 'x64') + '_linux_hotspot_21.0.4_7.tar.gz');
         }
 
 
@@ -69,9 +91,14 @@ export function installJava (app, win, settingsStorage) {
                     path: path.join(app.getPath('userData'), 'java')
                 })
             } else if (process.platform === 'darwin' || process.platform === 'linux') {
-                exec(`tar -xvf ${destination} -C ${path.join(app.getPath('userData'), 'java')}`)
+                fs.mkdirSync(path.join(app.getPath('userData'), 'java'), {recursive: true});
+                exec(`tar -xvf "${destination}" -C "${path.join(app.getPath('userData'), 'java')}"`)
                     .then((result) => {
-                        settingsStorage.set('java', path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java'));
+                        if(process.platform === 'darwin') {
+                            settingsStorage.set('java', path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'Contents', 'Home', 'bin', 'java'));
+                        } else {
+                            settingsStorage.set('java', `${path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')}`);
+                        }
                         resolve(result);
                     })
                     .catch((error) => {
@@ -82,7 +109,7 @@ export function installJava (app, win, settingsStorage) {
         });
 
         dl.start().catch((error) => {
-            reject(url);
+            reject(error);
         });
 
     })
