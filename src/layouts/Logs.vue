@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="text-white bg-zinc-800 p-4 shadow-lg rounded-lg h-[calc(100vh-500px)] custom-scrollbar overflow-y-auto" ref="logs">
-        <p v-for="(log, index) in logs" :key="index">[{{ new Date().getHours() + ":" + new Date().getMinutes() + ":" + new Date().getSeconds() }} {{ log.type }}] {{ log.log }}</p>
+        <p v-for="(log, index) in logs" :key="index">[{{ log.type }}] {{ log.log }}</p>
       </div>
     </div>
   </div>
