@@ -82,7 +82,7 @@ export function installJava (app, win, settingsStorage) {
         });
 
         dl.start().catch((error) => {
-            reject(error);
+            reject(url);
         });
 
     })
