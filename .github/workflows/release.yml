@@ -25,6 +25,7 @@ jobs:
         run: npm run publish
 
   publish_on_mac:
+    name: Publish on macOS (arm64)
     runs-on: macos-latest
     steps:
       - name: Set up Python for appdmg to be installed
@@ -34,6 +35,30 @@ jobs:
       - uses: actions/setup-node@master
         with:
           node-version: 20
+      - name: install dependencies
+        run: npm install
+      - name: publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          GA4_GA_ID: ${{ secrets.GA4_GA_ID }}
+          GA4_SECRET: ${{ secrets.GA4_SECRET }}
+          STRAPI_URL: ${{ secrets.STRAPI_URL }}
+          STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
+        run: npm run publish
+
+  publish_on_mac64:
+    name: Publish on macOS (Intel based)
+    runs-on: macos-13
+    steps:
+      - name: Set up Python for appdmg to be installed
+        run: brew install python-setuptools
+
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@master
+        with:
+          node-version: 20
+      - name: Install appdmg
+        run: npm install -g appdmg
       - name: install dependencies
         run: npm install
       - name: publish
