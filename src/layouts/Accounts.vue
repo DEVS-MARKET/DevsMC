@@ -65,6 +65,12 @@ export default {
     },
     createdAccount(object) {
       this.selectAccount(object.index, object.account);
+      gtag('event', 'account_created', {
+        'event_category': 'account',
+        'event_label': 'account_created',
+        'account': object.account.object.name || object.account.object.username,
+        'account_type': object.account.microsoft ? 'premium' : 'non-premium'
+      });
       this.getAccounts();
       this.closeAccounts();
     },

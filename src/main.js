@@ -2,15 +2,12 @@ import {app, BrowserWindow, net, dialog, Notification, protocol} from 'electron'
 import * as path from "node:path";
 import {checkJavaInstallation, installJava} from './functions/javaFunctions';
 import Store from "./storage.js";
-import crypto from "crypto";
+import crypto, {randomUUID} from "crypto";
 import fs from "fs";
 import ipcEvents from "./functions/ipcEvents";
 import * as url from "node:url";
 import seedDefaultSettings from "./seedDefaultSettings";
 import {updateElectronApp, UpdateSourceType} from "update-electron-app";
-
-const Analytics = require('electron-google-analytics4').default;
-const analytics = new Analytics(process.env.GA4_GA_ID, process.env.GA4_SECRET);
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     const securityToken = crypto.randomBytes(64).toString('hex');
@@ -35,7 +32,6 @@ if (require('electron-squirrel-startup')) {
 }
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
-    analytics.event("install");
     fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "locked");
 }
 
@@ -68,7 +64,7 @@ const createWindow = () => {
 
 
   win = mainWindow;
-  ipcEvents(accountStorage, settingsStorage, win, analytics);
+  ipcEvents(accountStorage, settingsStorage, win);
   app.setAppUserModelId(MAIN_WINDOW_VITE_DEV_SERVER_URL ? process.execPath : "DevsMC Launcher");
 };
 

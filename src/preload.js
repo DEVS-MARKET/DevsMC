@@ -55,6 +55,12 @@ contextBridge.exposeInMainWorld('devsApi', {
     getEnv: async () => {
         return await ipcRenderer.invoke('getEnv');
     },
+    getInstallationStatus: async () => {
+        return await ipcRenderer.invoke('getInstallationStatus')
+    },
+    getGaTags: async () => {
+        return await ipcRenderer.invoke('gtag')
+    },
 
 
 

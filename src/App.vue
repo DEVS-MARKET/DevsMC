@@ -135,12 +135,14 @@ export default {
       minecraftDirectory: '',
       searchedVersion: '',
       adjustedBottom: 0,
+      plaftorm: {},
     };
   },
   components: {
     Accounts,
   },
   async mounted() {
+    this.plaftorm = await window.devsApi.getSystemPlatform();
 
     localStorage.setItem('logs', JSON.stringify([]));
     if (await window.devsApi.getSettingValue('background')) {
@@ -161,11 +163,30 @@ export default {
 
     this.selectedVersion = localStorage.getItem('selectedVersion') || this.versions[0].name;
     window.devsApi.changeTitle(`Playing as ${this.selectedAccount.object.name || this.selectedAccount.object.username}`)
+    gtag('event', 'login', {
+      'platform': this.plaftorm.platform,
+      'platform_mem': this.plaftorm.memory,
+      'account': this.selectedAccount.object.name || this.selectedAccount.object.username,
+      'microsoft': this.selectedAccount.microsoft
+    })
 
     window.devsApi.onClosedGame(() => {
       this.isGameRunned = false;
-      console.log('Game closed')
+      gtag('event', 'close_game', {
+        'platform': this.plaftorm.platform,
+        'platform_mem': this.plaftorm.memory,
+      })
     });
+
+    window.devsApi.getInstallationStatus()
+        .then(async (status) => {
+          if (!status) {
+            gtag('event', 'install', {
+              'platform': this.plaftorm.platform,
+              'platform_mem': this.plaftorm.memory,
+            })
+          }
+        })
   },
   beforeDestroy() {
     document.removeEventListener('click', this.closeMenuOnOutsideClick);
@@ -184,6 +205,13 @@ export default {
     async deleteAccount() {
       await this.$refs.accountsComponent.deleteAccount(toRaw(this.selectedAccount));
       localStorage.removeItem('selectedAccount');
+
+      gtag('event', 'remove_account', {
+        'platform': this.plaftorm.platform,
+        'platform_mem': this.plaftorm.memory,
+        'account': this.selectedAccount.object.name || this.selectedAccount.object.username,
+        'microsoft': this.selectedAccount.microsoft
+      })
       this.selectedAccount = null;
       this.isGameRunned = true;
       this.openAccounts();
@@ -196,6 +224,12 @@ export default {
       this.selectedAccount = JSON.parse(localStorage.getItem('selectedAccount'));
       this.isGameRunned = false;
       window.devsApi.changeTitle(`Playing as ${this.selectedAccount.object.name || this.selectedAccount.object.username}`);
+      gtag('event', 'login', {
+        'platform': this.plaftorm.platform,
+        'platform_mem': this.plaftorm.memory,
+        'account': this.selectedAccount.object.name || this.selectedAccount.object.username,
+        'microsoft': this.selectedAccount.microsoft
+      })
       this.showAccounts = false;
     },
     adjustBottom() {
@@ -242,6 +276,14 @@ export default {
           customArgs: await window.devsApi.getSettingValue('args')
         }
       };
+
+      gtag('event', 'run_game', {
+        'platform': this.plaftorm.platform,
+        'platform_mem': this.plaftorm.memory,
+        'account': this.selectedAccount.object.name || this.selectedAccount.object.username,
+        'microsoft': this.selectedAccount.microsoft,
+        'version': runVer.name
+      })
       window.devsApi.runGame(JSON.stringify(opts));
       this.isGameRunned = true;
       await this.$router.push('/logs');

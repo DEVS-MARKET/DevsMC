@@ -51,9 +51,7 @@ function findJdkFolder(folderPath) {
     return jdkFolder ? path.join(folderPath, jdkFolder) : null;
 }
 
-export default (accountStorage, settingsStorage, win, analytics) => {
-    analytics.event('app_launch');
-
+export default (accountStorage, settingsStorage, win) => {
     launcher.on('debug', (e) => {
         win.webContents.send('log', {type: 'log', log: e});
     })
@@ -89,10 +87,6 @@ export default (accountStorage, settingsStorage, win, analytics) => {
 
         let accounts = accountStorage.get("minecraftAccounts");
         let index = accounts.findIndex(account => account.object.name === obj.name);
-        await analytics
-            .set("user_name", accounts[index].object.name || accounts[index].object.username)
-            .set("microsoft", accounts[index].microsoft)
-            .event("create_account");
 
 
         return {
@@ -117,12 +111,6 @@ export default (accountStorage, settingsStorage, win, analytics) => {
         // Find the account in the array and get
         let accounts = accountStorage.get("minecraftAccounts");
         let index = accounts.findIndex(account => account.object.username === username);
-
-        await analytics
-            .set("user_name", accounts[index].object.name || accounts[index].object.username)
-            .set("microsoft", accounts[index].microsoft)
-            .event("create_account");
-
         return {
             index: index,
             account: accounts[index]
@@ -185,10 +173,6 @@ export default (accountStorage, settingsStorage, win, analytics) => {
             memory: data.launcher.memory,
             javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
         }
-
-        await analytics
-            .set("version", data.launcher.version.number)
-            .event("start_game");
 
         launcher.launch(options)
             .then((launch) => {
@@ -278,4 +262,18 @@ export default (accountStorage, settingsStorage, win, analytics) => {
             ga4_secret: process.env.GA4_SECRET,
         };
     });
+
+    ipcMain.handle("getInstallationStatus", async (event) => {
+        let installationStatus = fs.existsSync(path.join(app.getPath('userData'), '.installerLock'));
+        if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
+            fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "locked")
+            return installationStatus;
+        }
+
+        return installationStatus;
+    })
+
+    ipcMain.handle("gtag", async (event) => {
+        return process.env.GA4_GA_ID;
+    })
 }
