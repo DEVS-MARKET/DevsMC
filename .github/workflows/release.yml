@@ -16,7 +16,7 @@ jobs:
 
       - name: Extract version from branch name using grep
         id: extract_version
-        run: echo "version=$(echo ${{ env.branch_name }} | grep -oP '(?<=release/).+')" >> $GITHUB_ENV
+        run: echo "version=$(echo ${{ env.branch_name }} | grep -oE '(?<=release/).+')" >> $GITHUB_ENV
 
       - name: Update version in package.json
         run: |
@@ -122,14 +122,19 @@ jobs:
       - name: Extract version from branch name using PowerShell
         id: extract_version
         run: |
-              $branchName = "${{ env.branch_name }}"
-              $version = $branchName -replace '^release/', ''
+            $branchName = "${{ env.branch_name }}"
+            if ($branchName -match '^release/(.+)$') {
+              $version = $matches[1]
               echo "version=$version" >> $env:GITHUB_ENV
+            } else {
+              Write-Error "Branch name does not match the expected pattern 'release/<number>'"
+              exit 1
+            }
         shell: pwsh
 
       - name: Update version in package.json
         run: |
-            (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${{ env.version }}"' | Set-Content package.json
+          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${{ env.version }}"' | Set-Content package.json
         shell: pwsh
 
       - uses: actions/setup-node@master
