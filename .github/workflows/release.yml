@@ -123,13 +123,8 @@ jobs:
         id: extract_version
         run: |
             $branchName = "${{ env.branch_name }}"
-            if ($branchName -match '^release/(.+)$') {
-              $version = $matches[1]
-              echo "version=$version" >> $env:GITHUB_ENV
-            } else {
-              Write-Error "Branch name does not match the expected pattern 'release/<number>'"
-              exit 1
-            }
+            $version = $branchName
+            echo "version=$version" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Update version in package.json
