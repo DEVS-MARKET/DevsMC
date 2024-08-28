@@ -109,9 +109,9 @@ jobs:
           chcp 65001
           echo ("BRANCH_NAME=" + $env:GITHUB_REF.replace('refs/heads/release/', '')) >> $env:GITHUB_ENV
           $version = $env:BRANCH_NAME
-          $packageJson = Get-Content -Path package.json -Raw
-          $packageJson = $packageJson -replace '"version": "[^"]*"', '"version": "' + $version + '"'
-          $packageJson | Set-Content -Path package.json
+          $packageJson = Get-Content package.json | ConvertFrom-Json
+          $packageJson.version = $version
+          $packageJson | ConvertTo-Json -Compress | Set-Content package.json
           echo $env:BRANCH_NAME
         shell: pwsh
 
