@@ -104,15 +104,28 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Get branch name
+        id: get_branch
+        run: |
+          $branchName = "${GITHUB_REF##*/}"
+          echo "branch_name=$branchName" >> $env:GITHUB_ENV
+        shell: pwsh
+
+      - name: Extract version from branch name
+        id: extract_version
+        run: |
+          $branchName = "${{ env.branch_name }}"
+          $version = $branchName
+          echo "version=$version" >> $env:GITHUB_ENV
+        shell: pwsh
+
       - name: Update version in package.json
         run: |
-          chcp 65001
-          echo ("BRANCH_NAME=" + $env:GITHUB_REF.replace('refs/heads/release/', '')) >> $env:GITHUB_ENV
-          $version = $env:BRANCH_NAME
+          echo "version=${{ env.version }}"
           $packageJson = Get-Content package.json | ConvertFrom-Json
-          $packageJson.version = $version
+          $packageJson.version = "${{ env.version }}"
+            
           $packageJson | ConvertTo-Json -Compress | Set-Content package.json
-          echo $env:BRANCH_NAME
         shell: pwsh
 
       - uses: actions/setup-node@master
