@@ -12,11 +12,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get branch name
         id: get_branch
-        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Extract version from branch name using grep
-        id: extract_version
-        run: echo "version=$(echo ${{ env.branch_name }} | grep -oE '(?<=release/).+')" >> $GITHUB_ENV
+        run: echo "version=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Update version in package.json
         run: |
@@ -47,11 +43,7 @@ jobs:
       - uses: actions/checkout@v3
       - name: Get branch name
         id: get_branch
-        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Extract version from branch name using grep
-        id: extract_version
-        run: echo "version=$(echo ${{ env.branch_name }} | grep -oE '[^/]+$')" >> $GITHUB_ENV
+        run: echo "version=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Update version in package.json
         run: |
@@ -81,11 +73,7 @@ jobs:
 
       - name: Get branch name
         id: get_branch
-        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
-
-      - name: Extract version from branch name using grep
-        id: extract_version
-        run: echo "version=$(echo ${{ env.branch_name }} | grep -oE '[^/]+$')" >> $GITHUB_ENV
+        run: echo "version=${GITHUB_REF##*/}" >> $GITHUB_ENV
 
       - name: Update version in package.json
         run: |
@@ -115,21 +103,9 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Get branch name
-        id: get_branch
-        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
-      - name: Extract version from branch name using PowerShell
-        id: extract_version
-        run: |
-            $branchName = "${{ env.branch_name }}"
-            $version = $branchName
-            echo "version=$version" >> $GITHUB_ENV
-        shell: pwsh
-
       - name: Update version in package.json
         run: |
-          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "$version"' | Set-Content package.json
+          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${GITHUB_REF##*/}"' | Set-Content package.json
         shell: pwsh
 
       - uses: actions/setup-node@master
