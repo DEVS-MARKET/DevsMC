@@ -9,7 +9,20 @@ jobs:
   publish_on_linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - name: Get branch name
+        id: get_branch
+        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Extract version from branch name using grep
+        id: extract_version
+        run: echo "version=$(echo ${{ env.branch_name }} | grep -oP '(?<=release/).+')" >> $GITHUB_ENV
+
+      - name: Update version in package.json
+        run: |
+          sed -i 's/"version": "[^"]*"/"version": "'${{ env.version }}'"/' package.json
+
+
       - uses: actions/setup-node@master
         with:
           node-version: 20
@@ -31,7 +44,18 @@ jobs:
       - name: Set up Python for appdmg to be installed
         run: brew install python-setuptools
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+      - name: Get branch name
+        id: get_branch
+        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Extract version from branch name using grep
+        id: extract_version
+        run: echo "version=$(echo ${{ env.branch_name }} | grep -oE '[^/]+$')" >> $GITHUB_ENV
+
+      - name: Update version in package.json
+        run: |
+          sed -i '' 's/"version": "[^"]*"/"version": "'${{ env.version }}'"/' package.json
       - uses: actions/setup-node@master
         with:
           node-version: 20
@@ -53,7 +77,19 @@ jobs:
       - name: Set up Python for appdmg to be installed
         run: brew install python-setuptools
 
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Get branch name
+        id: get_branch
+        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Extract version from branch name using grep
+        id: extract_version
+        run: echo "version=$(echo ${{ env.branch_name }} | grep -oE '[^/]+$')" >> $GITHUB_ENV
+
+      - name: Update version in package.json
+        run: |
+          sed -i '' 's/"version": "[^"]*"/"version": "'${{ env.version }}'"/' package.json
       - uses: actions/setup-node@master
         with:
           node-version: 20
@@ -78,7 +114,22 @@ jobs:
   publish_on_win:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Get branch version
+        id: get_branch
+        run: echo "branch_name=${GITHUB_REF##*/}" >> $GITHUB_ENV
+
+      - name: Extract version from branch name using grep
+        id: extract_version
+        run: echo "version=$(echo ${{ env.branch_name }} | Select-String -Pattern '(?<=release/).+').Matches.Value" >> $GITHUB_ENV
+        shell: pwsh
+
+      - name: Update version in package.json
+        run: |
+          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${{ env.version }}"' | Set-Content package.json
+        shell: pwsh
+        
       - uses: actions/setup-node@master
         with:
           node-version: 20
