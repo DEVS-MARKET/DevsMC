@@ -124,12 +124,12 @@ jobs:
         run: |
             $branchName = "${{ env.branch_name }}"
             $version = $branchName
-            echo "version=$version" >> $env:GITHUB_ENV
+            echo "version=$version" >> $GITHUB_ENV
         shell: pwsh
 
       - name: Update version in package.json
         run: |
-          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${{ env.version }}"' | Set-Content package.json
+          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "$version"' | Set-Content package.json
         shell: pwsh
 
       - uses: actions/setup-node@master
