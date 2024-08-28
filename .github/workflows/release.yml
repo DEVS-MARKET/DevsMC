@@ -103,10 +103,11 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-        
+
       - name: Update version in package.json
         run: |
-          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${env:GITHUB_REF##*/}"' | Set-Content package.json
+          chcp 65001
+          echo ("BRANCH_NAME=" + $env:GITHUB_REF.replace('refs/heads/release/v', '')) >> $env:GITHUB_ENV
         shell: pwsh
 
       - uses: actions/setup-node@master
