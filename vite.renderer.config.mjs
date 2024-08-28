@@ -15,6 +15,9 @@ export default defineConfig((env) => {
     base: './',
     build: {
       outDir: `.vite/renderer/${name}`,
+      rollupOptions: {
+        external: ['https://www.googletagmanager.com/gtag/js?id=G-WPYQ1033MH']
+      }
     },
     plugins: [pluginExposeRenderer(name), vue()],
     resolve: {

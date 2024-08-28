@@ -129,7 +129,7 @@ jobs:
         run: |
           (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${{ env.version }}"' | Set-Content package.json
         shell: pwsh
-        
+
       - uses: actions/setup-node@master
         with:
           node-version: 20
