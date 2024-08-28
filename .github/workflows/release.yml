@@ -108,6 +108,8 @@ jobs:
         run: |
           chcp 65001
           echo ("BRANCH_NAME=" + $env:GITHUB_REF.replace('refs/heads/release/v', '')) >> $env:GITHUB_ENV
+          (Get-Content -Path package.json -Raw) -replace '"version": "[^"]*"', '"version": "' + $env:BRANCH_NAME + '"' | Set-Content -Path package.json
+          echo $env:BRANCH_NAME
         shell: pwsh
 
       - uses: actions/setup-node@master
