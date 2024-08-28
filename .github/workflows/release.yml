@@ -103,17 +103,10 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v3
-
-      - name: Get branch name
-        id: get_branch
-        run: |
-          $branchName = "${GITHUB_REF##*/}"
-          echo "branch_name=$branchName" >> $env:GITHUB_ENV
-        shell: pwsh
-
+        
       - name: Update version in package.json
         run: |
-          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${{ env.branch_name }}"' | Set-Content package.json
+          (Get-Content package.json) -replace '"version": "[^"]*"', '"version": "${env:GITHUB_REF##*/}"' | Set-Content package.json
         shell: pwsh
 
       - uses: actions/setup-node@master
