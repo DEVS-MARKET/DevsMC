@@ -55,6 +55,7 @@
     "node-downloader-helper": "^2.1.9",
     "postcss": "^8.4.41",
     "tailwindcss": "^3.4.10",
+    "tomate-loaders": "^2.0.2",
     "update-electron-app": "^3.0.0",
     "vue": "3.4.38",
     "vue-router": "^4.0.13"

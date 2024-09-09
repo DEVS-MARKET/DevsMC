@@ -25,6 +25,7 @@ if (process.platform === "win32") {
 
 const accountStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'accounts.json');
 const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'settings.json');
+const modpacksStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'modpacks.json');
 
 let win;
 if (require('electron-squirrel-startup')) {

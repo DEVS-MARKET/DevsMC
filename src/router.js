@@ -20,6 +20,11 @@ const routes = [
         path: "/authors",
         name: "Authors",
         component: () => import("./layouts/Authors.vue")
+    },
+    {
+        path: "/modpacks",
+        name: "Modpacks",
+        component: () => import("./layouts/Modpacks.vue")
     }
 ]
 

@@ -1,6 +1,7 @@
 import {app, ipcMain, Notification, shell} from "electron";
 import {Auth} from "msmc";
 import {Authenticator, Client} from "minecraft-launcher-core";
+import {fabric, forge} from "tomate-loaders";
 import * as path from "node:path";
 import fs from "node:fs";
 import DiscordRCP from "discord-rpc";
@@ -178,6 +179,44 @@ export default (accountStorage, settingsStorage, win) => {
             .then((launch) => {
                 launchedClient = launch;
             });
+    });
+
+    ipcMain.handle("runModPack", async (event, data) => {
+        text = `Playing custom modpack as ${data.user.object.username || data.user.object.name} (Minecraft version: ${data.launcher.version.number})`;
+        if (data.user.microsoft) {
+            const authManager = new Auth("none");
+            const xboxManager = await authManager.refresh(data.user.object.meta.refresh);
+            const token = await xboxManager.getMinecraft();
+
+            // Find the account in the array and update it
+            let accounts = accountStorage.get("minecraftAccounts");
+            let index = accounts.findIndex(account => account.object.username === data.user.object.username);
+            accounts[index].object = token.mclc(true);
+            accountStorage.set("minecraftAccounts", accounts);
+            data.user.object = token.mclc(true);
+        }
+
+        let options = {
+            authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
+            root: path.join(app.getPath("userData"), ".modpacks", data.modpack.name),
+            version: data.modpack.version,
+            customArgs: data.launcher.customArgs,
+            memory: data.launcher.memory,
+            javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
+        }
+
+        launcher.launch(options)
+            .then((launch) => {
+                launchedClient = launch;
+            });
+    })
+
+    ipcMain.handle("getForgeVersions", async (event) => {
+        return await forge.listSupportedVersions();
+    });
+
+    ipcMain.handle("getFabricVersions", async (event) => {
+        return (await fabric.listSupportedVersions()).filter(version => version.stable);
     });
 
     ipcMain.handle("stopGame", async (event) => {

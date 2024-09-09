@@ -38,6 +38,12 @@ contextBridge.exposeInMainWorld('devsApi', {
     getVersions: async () => {
         return await ipcRenderer.invoke('getMinecarftVersions');
     },
+    getForgeVersions: async () => {
+        return await ipcRenderer.invoke('getForgeVersions');
+    },
+    getFabricVersions: async () => {
+        return await ipcRenderer.invoke('getFabricVersions');
+    },
     getLogsFiles: async () => {
         return await ipcRenderer.invoke('getLogsFiles');
     },
