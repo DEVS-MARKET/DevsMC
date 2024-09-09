@@ -28,7 +28,7 @@ const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userDat
 
 let win;
 if (require('electron-squirrel-startup')) {
-  app.quit();
+    app.quit();
 }
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
@@ -39,33 +39,35 @@ seedDefaultSettings(settingsStorage, app);
 
 app.setAsDefaultProtocolClient('devsmc');
 protocol.registerSchemesAsPrivileged([
-    { scheme: 'devsmc', privileges: { standard: true, secure: true, bypassCSP: true } }
+    {scheme: 'devsmc', privileges: {standard: true, secure: true, bypassCSP: true}}
 ]);
 const createWindow = () => {
-  const mainWindow = new BrowserWindow({
-    width: 1500,
-    height: 1000,
-    autoHideMenuBar: true,
-    webPreferences: {
-        preload: path.join(__dirname, 'preload.js'),
+    const mainWindow = new BrowserWindow({
+        width: 1500,
+        height: 1000,
+        autoHideMenuBar: true,
+        titleBarStyle: 'hidden',
+        webPreferences: {
+            preload: path.join(__dirname, 'preload.js'),
 
-    },
-      icon: path.join(__dirname, '/assets/icon.png'),
-  });
+        },
+        icon: path.join(__dirname, '/assets/icon.png'),
+    });
+    mainWindow.setMenuBarVisibility(false);
 
-  mainWindow.setTitle("DevsMC Launcher");
+    mainWindow.setTitle("DevsMC Launcher");
 
-  if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-    mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
-    mainWindow.webContents.openDevTools();
-  } else {
-    mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
-  }
+    if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
+        mainWindow.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+        mainWindow.webContents.openDevTools();
+    } else {
+        mainWindow.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+    }
 
 
-  win = mainWindow;
-  ipcEvents(accountStorage, settingsStorage, win);
-  app.setAppUserModelId(MAIN_WINDOW_VITE_DEV_SERVER_URL ? process.execPath : "DevsMC Launcher");
+    win = mainWindow;
+    ipcEvents(accountStorage, settingsStorage, win);
+    app.setAppUserModelId(MAIN_WINDOW_VITE_DEV_SERVER_URL ? process.execPath : "DevsMC Launcher");
 };
 
 
@@ -77,16 +79,18 @@ app.whenReady().then((scheme, handler) => {
         return net.fetch(url.pathToFileURL(path.join(__dirname, filePath)).toString())
     });
 
-    checkJavaInstallation(app)
+    checkJavaInstallation(app, settingsStorage)
         .then((result) => {
             new Notification({
                 title: "Java installed",
                 body: "Java is installed on your system.",
+                icon: path.join(__dirname, '/assets/icon.png'),
             }).show();
         })
         .catch((error) => {
             new Notification({
                 title: "Java not installed",
+                icon: path.join(__dirname, '/assets/icon.png'),
                 body: "Java is not installed on your system, we will install it for you. - " + error.message,
             }).show();
 
@@ -94,12 +98,14 @@ app.whenReady().then((scheme, handler) => {
                 .then((result) => {
                     new Notification({
                         title: "Java installed",
+                        icon: path.join(__dirname, '/assets/icon.png'),
                         body: "Java has been installed on your system.",
                     }).show();
                 })
                 .catch((error) => {
                     new Notification({
                         title: "Java installation failed",
+                        icon: path.join(__dirname, '/assets/icon.png'),
                         body: "Java installation failed.",
                     }).show();
 
@@ -107,15 +113,15 @@ app.whenReady().then((scheme, handler) => {
                 });
         });
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      createWindow();
-    }
-  });
+    app.on('activate', () => {
+        if (BrowserWindow.getAllWindows().length === 0) {
+            createWindow();
+        }
+    });
 });
 
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+    if (process.platform !== 'darwin') {
+        app.quit();
+    }
 });

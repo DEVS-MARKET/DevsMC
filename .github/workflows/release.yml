@@ -114,17 +114,16 @@ jobs:
       - name: Extract version from branch name
         id: extract_version
         run: |
-          $branchName = "${{ env.branch_name }}"
+          $branchName = "$env:branch_name"
           $version = $branchName
           echo "version=$version" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Update version in package.json
         run: |
-          echo "version=${{ env.version }}"
+          Write-Host "Updating version to: $env:version"
           $packageJson = Get-Content package.json | ConvertFrom-Json
-          $packageJson.version = "${{ env.version }}"
-            
+          $packageJson.version = "$env:version"
           $packageJson | ConvertTo-Json -Compress | Set-Content package.json
         shell: pwsh
 

@@ -26,7 +26,34 @@
       </style>
   </head>
   <body class="dark">
+      <nav class="bg-gray-900">
+          <div class="nav-buttons">
+              <button class="closeWindow"></button>
+              <button class="minimalizeWindow"></button>
+              <button class="maximizeWindow"></button>
+          </div>
+          <p id="window-title" class="title text-white">DevsMC</p>
+      </nav>
     <div id="devsmc" class="background-image h-[100vh]"></div>
     <script type="module" src="/src/renderer.js" async></script>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const closeWindow = document.querySelector('.closeWindow')
+            const minimalizeWindow = document.querySelector('.minimalizeWindow')
+            const maximizeWindow = document.querySelector('.maximizeWindow')
+
+            closeWindow.addEventListener('click', () => {
+                window.devsApi.windowOption('close');
+            })
+
+            minimalizeWindow.addEventListener('click', () => {
+                window.devsApi.windowOption('minimize');
+            })
+
+            maximizeWindow.addEventListener('click', () => {
+                window.devsApi.windowOption('maximize');
+            })
+        })
+    </script>
   </body>
 </html>

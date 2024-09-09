@@ -45,7 +45,7 @@ function findJdkFolder(folderPath) {
 
     const jdkFolder = files.find(file => {
         const filePath = path.join(folderPath, file);
-        return fs.statSync(filePath).isDirectory() && file.startsWith('zulu');
+        return fs.statSync(filePath).isDirectory() && file.startsWith('jdk-');
     });
 
     return jdkFolder ? path.join(folderPath, jdkFolder) : null;
@@ -275,5 +275,23 @@ export default (accountStorage, settingsStorage, win) => {
 
     ipcMain.handle("gtag", async (event) => {
         return process.env.GA4_GA_ID;
+    })
+
+    ipcMain.handle("windowOption", async (event, action) => {
+        switch (action) {
+            case "minimize":
+                win.minimize();
+                break;
+            case "maximize":
+                if (win.isMaximized()) {
+                    win.unmaximize();
+                } else {
+                    win.maximize();
+                }
+                break;
+            case "close":
+                win.close();
+                break;
+        }
     })
 }

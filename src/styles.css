@@ -54,3 +54,47 @@
 .acc-inactive {
     animation: blurOut 0.5s forwards;
 }
+
+nav {
+    -webkit-app-region: drag;
+    height: 35px;
+    display: flex;
+    align-items: center;
+}
+
+.nav-buttons {
+    display: flex;
+    width: 80px;
+    justify-content: space-evenly;
+    align-items: center;
+    height: 100%;
+}
+.nav-buttons > button {
+    border: none;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    height: 15px;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+    /* shouldn't be able to drag
+      : drag blocks cursor events */
+}
+
+.closeWindow {
+    background: #FF605C;
+}
+
+.minimalizeWindow {
+    background: #FFBD44;
+}
+
+.maximizeWindow {
+    background: #00CA4E;
+}
+
+.windowTitle {
+    user-select: none;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+}

@@ -15,12 +15,11 @@ function findJdkFolder(folderPath) {
 
     return jdkFolder ? path.join(folderPath, jdkFolder) : null;
 }
-export function checkJavaInstallation (app){
+export function checkJavaInstallation (app, settingsStorage) {
     return new Promise((resolve, reject) => {
         if (process.platform === 'win32') {
-            let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
+            let filePath = settingsStorage.get('java') ? settingsStorage.get('java') : path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
 
-            console.log(filePath)
             exec(`"${path.normalize(filePath)}" -version`)
                 .then((result) => {
                     resolve(result);
@@ -30,7 +29,7 @@ export function checkJavaInstallation (app){
                     reject(error);
                 });
         } else if (process.platform === 'darwin') {
-            let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'Contents', 'Home', 'bin', 'java');
+            let filePath = settingsStorage.get('java') ? settingsStorage.get('java') : path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'Contents', 'Home', 'bin', 'java');
             exec(`"${path.normalize(filePath)}" -version`)
                 .then((result) => {
                     resolve(result);
@@ -40,7 +39,7 @@ export function checkJavaInstallation (app){
                     reject(error);
                 });
         } else if (process.platform === 'linux') {
-            let filePath = path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
+            let filePath = settingsStorage.get('java') ? settingsStorage.get('java') : path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java');
             exec(`"${path.normalize(filePath)}" -version`)
                 .then((result) => {
                     resolve(result);

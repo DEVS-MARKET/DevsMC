@@ -21,6 +21,10 @@ contextBridge.exposeInMainWorld('devsApi', {
     },
     changeTitle: async (title) => {
         document.title = title + " - DevsMC Launcher";
+        document.getElementById('window-title').innerHTML = title + " - DevsMC Launcher";
+    },
+    windowOption: async (option) => {
+      return await ipcRenderer.invoke('windowOption', option);
     },
     runGame: async (data) => {
         return await ipcRenderer.invoke('runGame', JSON.parse(data));
