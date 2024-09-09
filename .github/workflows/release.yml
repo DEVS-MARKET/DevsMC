@@ -107,15 +107,22 @@ jobs:
       - name: Get branch name
         id: get_branch
         run: |
-          $branchName = "${GITHUB_REF##*/}"
+          $branchName = $env:GITHUB_REF -replace 'refs/heads/', ''
+          Write-Host "Extracted branch name: $branchName"
           echo "branch_name=$branchName" >> $env:GITHUB_ENV
         shell: pwsh
 
       - name: Extract version from branch name
         id: extract_version
         run: |
-          $branchName = "$env:branch_name"
-          $version = $branchName
+          $branchName = $env:branch_name
+          if ($branchName -match 'release/([0-9]+\.[0-9]+\.[0-9]+)') {
+            $version = $matches[1]
+            Write-Host "Extracted version: $version"
+          } else {
+            throw "Branch name does not follow the 'release/x.x.x' pattern"
+          }
+          
           echo "version=$version" >> $env:GITHUB_ENV
         shell: pwsh
 
