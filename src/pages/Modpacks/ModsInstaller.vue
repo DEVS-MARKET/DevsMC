@@ -66,9 +66,13 @@
           </div>
 
           <!-- Install Button -->
-          <button class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded flex items-center">
+          <button v-if="mod.installable" @click="installMod(`${mod.id}`)" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00016" transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.48"></g><g id="SVGRepo_iconCarrier"> <path d="M13 7H10V0H6V7L3 7V8L8 13L13 8V7Z" fill="#ffffff"></path> <path d="M14 14H2V16H14V14Z" fill="#ffffff"></path> </g></svg>
             Install
+          </button>
+          <button v-else class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded flex items-center">
+            <svg class="w-4 h-4 mr-2" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00016" transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.48"></g><g id="SVGRepo_iconCarrier"> <path d="M13 7H10V0H6V7L3 7V8L8 13L13 8V7Z" fill="#ffffff"></path> <path d="M14 14H2V16H14V14Z" fill="#ffffff"></path> </g></svg>
+            Adlready installed
           </button>
         </div>
       </div>
@@ -100,11 +104,19 @@ export default {
     async getMods() {
       this.mods = await window.devsApi.getMods(this.$route.params.index, this.page, this.searchForm);
       this.totalPages = this.mods.totalPages;
+    },
+    installMod(modId) {
+      window.devsApi.addMod(this.$route.params.index, modId)
     }
   },
   async mounted() {
     await this.getModpack();
     await this.getMods();
+
+
+    window.devsApi.onModDownloaded(async () => {
+      await this.getMods();
+    })
   }
 }
 </script>

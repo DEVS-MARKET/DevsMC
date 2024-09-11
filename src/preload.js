@@ -91,6 +91,9 @@ contextBridge.exposeInMainWorld('devsApi', {
     getMods: async (modpack, pageIndex, search) => {
         return await ipcRenderer.invoke('getMods', modpack, pageIndex, search);
     },
+    addMod: async (modpack, mod_id) => {
+        return await ipcRenderer.invoke('installMod', modpack, mod_id);
+    },
 
 
 
@@ -98,4 +101,7 @@ contextBridge.exposeInMainWorld('devsApi', {
     onLogReceive: (callback) => ipcRenderer.on('log', (event, data) => callback(data)),
     onClosedGame: (callback) => ipcRenderer.on('closedGame', (event, data) => callback(data)),
     onDownloading: (callback) => ipcRenderer.on('downloading', (event, data) => callback(data)),
+
+    // Modpacks
+    onModDownloaded: (callback) => ipcRenderer.on('modDownloaded', (event, data) => callback(data)),
 });

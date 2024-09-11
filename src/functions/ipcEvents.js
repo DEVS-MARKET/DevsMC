@@ -311,5 +311,5 @@ export default (accountStorage, settingsStorage, win, modpacksStorage) => {
             });
     })
 
-    modpacks(modpacksStorage);
+    modpacks(modpacksStorage, win);
 }
