@@ -29,6 +29,7 @@ export default defineConfig((env) => {
         STRAPI_URL: process.env.STRAPI_URL,
         GA4_GA_ID: process.env.GA4_GA_ID,
         GA4_SECRET: process.env.GA4_SECRET,
+        CURSEFORGE_TOKEN: process.env.CURSEFORGE_TOKEN,
     })],
     define,
     resolve: {

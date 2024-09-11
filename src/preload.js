@@ -38,12 +38,6 @@ contextBridge.exposeInMainWorld('devsApi', {
     getVersions: async () => {
         return await ipcRenderer.invoke('getMinecarftVersions');
     },
-    getForgeVersions: async () => {
-        return await ipcRenderer.invoke('getForgeVersions');
-    },
-    getFabricVersions: async () => {
-        return await ipcRenderer.invoke('getFabricVersions');
-    },
     getLogsFiles: async () => {
         return await ipcRenderer.invoke('getLogsFiles');
     },
@@ -70,6 +64,32 @@ contextBridge.exposeInMainWorld('devsApi', {
     },
     getGaTags: async () => {
         return await ipcRenderer.invoke('gtag')
+    },
+
+    // Modpacks
+    getForgeVersions: async () => {
+        return await ipcRenderer.invoke('getForgeVersions');
+    },
+    getFabricVersions: async () => {
+        return await ipcRenderer.invoke('getFabricVersions');
+    },
+    getModpacks: async () => {
+        return await ipcRenderer.invoke('getModpacks');
+    },
+    getModpack: async (index) => {
+        return await ipcRenderer.invoke('getModpack', index);
+    },
+    addModpack: async (modpack) => {
+        return await ipcRenderer.invoke('addModpack', modpack);
+    },
+    removeModpack: async (name) => {
+        return await ipcRenderer.invoke('removeModpack', name);
+    },
+    updateModpack: async (modpack) => {
+        return await ipcRenderer.invoke('updateModpack', modpack);
+    },
+    getMods: async (modpack, pageIndex, search) => {
+        return await ipcRenderer.invoke('getMods', modpack, pageIndex, search);
     },
 
 

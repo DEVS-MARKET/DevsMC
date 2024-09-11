@@ -119,8 +119,9 @@
 </template>
 
 <script>
-import Accounts from './layouts/Accounts.vue'
+import Accounts from './pages/Accounts.vue'
 import {toRaw} from "vue";
+import {initFlowbite} from "flowbite";
 
 export default {
   data() {
@@ -147,6 +148,7 @@ export default {
     Accounts,
   },
   async mounted() {
+    initFlowbite();
     this.plaftorm = await window.devsApi.getSystemPlatform();
 
     localStorage.setItem('logs', JSON.stringify([]));

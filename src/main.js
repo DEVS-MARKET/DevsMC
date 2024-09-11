@@ -36,7 +36,11 @@ if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
     fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "locked");
 }
 
-seedDefaultSettings(settingsStorage, app);
+if (!fs.existsSync(path.join(app.getPath('userData'), '.modpacks'))) {
+    fs.mkdirSync(path.join(app.getPath('userData'), '.modpacks'));
+}
+
+seedDefaultSettings(settingsStorage, app, modpacksStorage);
 
 app.setAsDefaultProtocolClient('devsmc');
 protocol.registerSchemesAsPrivileged([
@@ -67,7 +71,7 @@ const createWindow = () => {
 
 
     win = mainWindow;
-    ipcEvents(accountStorage, settingsStorage, win);
+    ipcEvents(accountStorage, settingsStorage, win, modpacksStorage);
     app.setAppUserModelId(MAIN_WINDOW_VITE_DEV_SERVER_URL ? process.execPath : "DevsMC Launcher");
 };
 
