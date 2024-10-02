@@ -1,6 +1,7 @@
 import {app, ipcMain, Notification, shell} from "electron";
 import {Auth} from "msmc";
 import {Authenticator, Client} from "minecraft-launcher-core";
+import {forge, fabric} from "tomate-loaders";
 import * as path from "node:path";
 import fs from "node:fs";
 import DiscordRCP from "discord-rpc";
@@ -30,7 +31,7 @@ function findJdkFolder(folderPath) {
 
     const jdkFolder = files.find(file => {
         const filePath = path.join(folderPath, file);
-        return fs.statSync(filePath).isDirectory() && file.startsWith('jdk-');
+        return fs.statSync(filePath).isDirectory() && file.startsWith('jdk-') || fs.statSync(filePath).isDirectory() && file.startsWith('jdk');
     });
 
     return jdkFolder ? path.join(folderPath, jdkFolder) : null;
@@ -38,10 +39,12 @@ function findJdkFolder(folderPath) {
 
 export default (accountStorage, settingsStorage, win, modpacksStorage) => {
     launcher.on('debug', (e) => {
+        win.webContents.send('runningGame');
         win.webContents.send('log', {type: 'log', log: e});
     })
 
     launcher.on('data', (e) => {
+        win.webContents.send('runningGame');
         win.webContents.send('log', {type: 'log', log: e});
     })
 
@@ -279,16 +282,33 @@ export default (accountStorage, settingsStorage, win, modpacksStorage) => {
         }
     })
 
+    function compareVersions(version1, version2) {
+        const v1Parts = version1.split('.').map(Number);
+        const v2Parts = version2.split('.').map(Number);
+
+        while (v1Parts.length < 3) v1Parts.push(0);
+        while (v2Parts.length < 3) v2Parts.push(0);
+
+        for (let i = 0; i < 3; i++) {
+            if (v1Parts[i] > v2Parts[i]) {
+                return 1;
+            }
+            if (v1Parts[i] < v2Parts[i]) {
+                return -1;
+            }
+        }
+
+        return 0;
+    }
 
     // Modpacks
-    ipcMain.handle("runModPack", async (event, data) => {
-        text = `Playing custom modpack as ${data.user.object.username || data.user.object.name} (Minecraft version: ${data.launcher.version.number})`;
+    ipcMain.handle("playModpack", async (event, data) => {
+        text = `Playing custom modpack as ${data.user.object.username || data.user.object.name} (Minecraft version: ${data.modpack.version} - Loader: ${data.modpack.loader})`;
         if (data.user.microsoft) {
             const authManager = new Auth("none");
             const xboxManager = await authManager.refresh(data.user.object.meta.refresh);
             const token = await xboxManager.getMinecraft();
 
-            // Find the account in the array and update it
             let accounts = accountStorage.get("minecraftAccounts");
             let index = accounts.findIndex(account => account.object.username === data.user.object.username);
             accounts[index].object = token.mclc(true);
@@ -296,19 +316,35 @@ export default (accountStorage, settingsStorage, win, modpacksStorage) => {
             data.user.object = token.mclc(true);
         }
 
+        let launchConfig = {};
+        if (data.modpack.loader === "forge") {
+            launchConfig = await forge.getMCLCLaunchConfig({
+                gameVersion: data.modpack.version,
+                rootPath: data.modpack.path,
+            })
+        } else if (data.modpack.loader === "fabric") {
+            launchConfig = await fabric.getMCLCLaunchConfig({
+                gameVersion: data.modpack.version,
+                rootPath: data.modpack.path,
+            })
+        }
+
+        // Check if minecraft version is >= 1.13
+        let javaPath = compareVersions(data.modpack.version, "1.13") >= 0 ? settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java') : settingsStorage.get("java8") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java8')), 'bin', 'java');
+
         let options = {
+            ...launchConfig,
             authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
-            root: path.join(app.getPath("userData"), ".modpacks", data.modpack.name),
-            version: data.modpack.version,
-            customArgs: data.launcher.customArgs,
             memory: data.launcher.memory,
-            javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
+            javaPath: javaPath
         }
 
         launcher.launch(options)
             .then((launch) => {
                 launchedClient = launch;
-            });
+                console.log(launchedClient)
+            })
+            .catch(console.log);
     })
 
     modpacks(modpacksStorage, win);

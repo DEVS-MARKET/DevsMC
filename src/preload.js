@@ -67,6 +67,9 @@ contextBridge.exposeInMainWorld('devsApi', {
     },
 
     // Modpacks
+    playModpack: async (data) => {
+        return await ipcRenderer.invoke('playModpack', JSON.parse(data));
+    },
     getForgeVersions: async () => {
         return await ipcRenderer.invoke('getForgeVersions');
     },
@@ -94,14 +97,19 @@ contextBridge.exposeInMainWorld('devsApi', {
     addMod: async (modpack, mod_id) => {
         return await ipcRenderer.invoke('installMod', modpack, mod_id);
     },
+    removeMod: async (modpack, mod_name, mod_file) => {
+        return await ipcRenderer.invoke('removeMod', modpack, mod_name, mod_file);
+    },
 
 
 
     // Main into renderer communication
     onLogReceive: (callback) => ipcRenderer.on('log', (event, data) => callback(data)),
     onClosedGame: (callback) => ipcRenderer.on('closedGame', (event, data) => callback(data)),
+    onRunningGame: (callback) => ipcRenderer.on('runningGame', (event, data) => callback(data)),
     onDownloading: (callback) => ipcRenderer.on('downloading', (event, data) => callback(data)),
 
     // Modpacks
     onModDownloaded: (callback) => ipcRenderer.on('modDownloaded', (event, data) => callback(data)),
+    onModRemoved: (callback) => ipcRenderer.on('modRemoved', (event, data) => callback(data)),
 });

@@ -87,7 +87,7 @@ app.whenReady().then((scheme, handler) => {
     checkJavaInstallation(app, settingsStorage)
         .then((result) => {
             new Notification({
-                title: "Java installed",
+                title: "Java 21 & 8 - installed",
                 body: "Java is installed on your system.",
                 icon: path.join(__dirname, '/assets/icon.png'),
             }).show();
@@ -102,7 +102,7 @@ app.whenReady().then((scheme, handler) => {
             installJava(app, win, settingsStorage)
                 .then((result) => {
                     new Notification({
-                        title: "Java installed",
+                        title: "Java 21 & 8 - installed",
                         icon: path.join(__dirname, '/assets/icon.png'),
                         body: "Java has been installed on your system.",
                     }).show();

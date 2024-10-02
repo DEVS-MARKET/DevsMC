@@ -185,6 +185,11 @@ export default {
       })
     });
 
+    window.devsApi.onRunningGame(() => {
+      this.isGameRunned = true;
+      this.$router.push('/logs');
+    });
+
     window.devsApi.getInstallationStatus()
         .then(async (status) => {
           if (!status) {

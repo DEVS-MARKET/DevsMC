@@ -5,9 +5,11 @@ import fs from "fs";
 import {CurseforgeV1Client, FileModLoaderType} from '@xmcl/curseforge'
 import {Readable} from "stream";
 
-const curseforge = new CurseforgeV1Client(`$2a$10$x1B.2vpaWS7PUp2l.cm/SO6WEVNzKy078TmLib6n2UIm4./UDTMpG`)
 
 export default (modpacksStorage, win) => {
+    const curseforge = new CurseforgeV1Client(`${process.env.CURSEFORGE_TOKEN}`)
+    console.log(`Curseforge token: ${process.env.CURSEFORGE_TOKEN}`)
+
     ipcMain.handle("getForgeVersions", async (event) => {
         return await forge.listSupportedVersions();
     });
@@ -36,7 +38,7 @@ export default (modpacksStorage, win) => {
 
     ipcMain.handle("removeModpack", async (event, name) => {
         const modpacks = modpacksStorage.get("modpacks");
-        fs.rmdirSync(modpacks.find(modpack => modpack.name === name).path, {recursive: true});
+        fs.rm(modpacks.find(modpack => modpack.name === name).path, {recursive: true});
         modpacks.splice(modpacks.findIndex(modpack => modpack.name === name), 1);
         modpacksStorage.set("modpacks", modpacks);
     });
@@ -61,7 +63,7 @@ export default (modpacksStorage, win) => {
             modLoaderType: savedModpack.loader === "forge" ? FileModLoaderType.Forge : FileModLoaderType.Fabric,
             modId: mod_id
         })).data;
-        
+
         if (!files || !files[0].downloadUrl) {
             new Notification({
                 title: "Error",
@@ -85,6 +87,7 @@ export default (modpacksStorage, win) => {
                 file.close();
                 savedModpack.mods.push({
                     name: mod.name,
+                    fileName: files[0].fileName
                 });
                 modpacksStorage.updateByIndex("modpacks", modpack, savedModpack);
                 new Notification({
@@ -103,7 +106,7 @@ export default (modpacksStorage, win) => {
         let searchParams = {
             gameVersion: modpack.version,
             modLoaderType: modpack.loader === "forge" ? FileModLoaderType.Forge : FileModLoaderType.Fabric,
-            index: pageIndex - 1,
+            index: pageIndex,
             searchFilter: searchText || "",
             pageSize: 10
         };
@@ -124,5 +127,18 @@ export default (modpacksStorage, win) => {
             totalPages: totalPages,
             currentPage: pageIndex || 0
         }
+    })
+
+    ipcMain.handle("removeMod", async (event, modpack, mod_name, mod_file) => {
+        let savedModpack = modpacksStorage.get("modpacks")[modpack];
+        let mod = savedModpack.mods.find(mod => mod.name === mod_name);
+        fs.unlinkSync(path.join(savedModpack.path, 'mods', mod_file));
+        savedModpack.mods.splice(savedModpack.mods.findIndex(mod => mod.name === mod_name), 1);
+        modpacksStorage.updateByIndex("modpacks", modpack, savedModpack);
+        new Notification({
+            title: "Success",
+            body: `Mod ${mod_name} (${mod_file}) removed successfully`
+        }).show();
+        win.webContents.send('modRemoved');
     })
 }

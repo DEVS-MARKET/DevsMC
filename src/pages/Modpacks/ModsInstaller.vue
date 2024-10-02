@@ -70,9 +70,9 @@
             <svg class="w-4 h-4 mr-2" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00016" transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.48"></g><g id="SVGRepo_iconCarrier"> <path d="M13 7H10V0H6V7L3 7V8L8 13L13 8V7Z" fill="#ffffff"></path> <path d="M14 14H2V16H14V14Z" fill="#ffffff"></path> </g></svg>
             Install
           </button>
-          <button v-else class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded flex items-center">
+          <button v-else @click="removeMod(`${modpack.mods.find(modP => modP.name === mod.name).name}`, `${modpack.mods.find(modP => modP.name === mod.name).fileName}`)" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded flex items-center">
             <svg class="w-4 h-4 mr-2" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="0.00016" transform="rotate(0)matrix(1, 0, 0, 1, 0, 0)"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round" stroke="#CCCCCC" stroke-width="0.48"></g><g id="SVGRepo_iconCarrier"> <path d="M13 7H10V0H6V7L3 7V8L8 13L13 8V7Z" fill="#ffffff"></path> <path d="M14 14H2V16H14V14Z" fill="#ffffff"></path> </g></svg>
-            Adlready installed
+            Remove
           </button>
         </div>
       </div>
@@ -102,11 +102,22 @@ export default {
       this.modpack = await window.devsApi.getModpack(this.$route.params.index);
     },
     async getMods() {
-      this.mods = await window.devsApi.getMods(this.$route.params.index, this.page, this.searchForm);
+      if (this.page < 1) {
+        this.page = this.totalPages;
+      }
+
+      if (this.page > this.totalPages) {
+        this.page = 1;
+      }
+
+      this.mods = await window.devsApi.getMods(this.$route.params.index, (this.page - 1) * 10, this.searchForm);
       this.totalPages = this.mods.totalPages;
     },
-    installMod(modId) {
+    async installMod(modId) {
       window.devsApi.addMod(this.$route.params.index, modId)
+    },
+    async removeMod(modName, modFile) {
+      window.devsApi.removeMod(this.$route.params.index, modName, modFile);
     }
   },
   async mounted() {
@@ -115,6 +126,10 @@ export default {
 
 
     window.devsApi.onModDownloaded(async () => {
+      await this.getMods();
+    })
+
+    window.devsApi.onModRemoved(async () => {
       await this.getMods();
     })
   }

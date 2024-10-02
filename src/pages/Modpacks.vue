@@ -60,7 +60,7 @@
             <button @click="$router.push(`/modpacks/${index}/mods`)" type="button" class="px-4 py-2 text-sm font-medium rounded-s-lg dark:bg-blue-600 dark:border-blue-700 dark:text-white dark:hover:text-white dark:hover:bg-blue-700 dark:focus:ring-blue-500 dark:focus:text-white">
               Add mods
             </button>
-            <button type="button" class="px-4 py-2 text-sm font-medium dark:bg-green-600 dark:border-green-700 dark:text-white dark:hover:text-white dark:hover:bg-green-700 dark:focus:ring-blue-500 dark:focus:text-white">
+            <button @click="playModpack(`${index}`)" type="button" class="px-4 py-2 text-sm font-medium dark:bg-green-600 dark:border-green-700 dark:text-white dark:hover:text-white dark:hover:bg-green-700 dark:focus:ring-blue-500 dark:focus:text-white">
               Play
             </button>
             <button @click="removeModpack(`${modpack.name}`)" type="button" class="px-4 py-2 text-sm font-medium rounded-e-lg dark:bg-red-600 dark:border-red-700 dark:text-white dark:hover:text-white dark:hover:bg-red-700 dark:focus:ring-red-500 dark:focus:text-white">
@@ -147,6 +147,22 @@ export default {
     async getModpacks() {
       this.modpacks = await window.devsApi.getModpacks();
       console.log(this.modpacks);
+    },
+    async playModpack(modpack_id) {
+      console.log(modpack_id);
+      let memory = await window.devsApi.getSettingValue('memory');
+      let opts = {
+        user: JSON.parse(localStorage.getItem('selectedAccount')),
+        modpack: toRaw(this.modpacks[modpack_id]),
+        launcher: {
+          memory: {
+            min: `${parseInt(memory.min)}G`,
+            max: `${parseInt(memory.max)}G`
+          },
+        }
+      };
+
+      await window.devsApi.playModpack(JSON.stringify(opts));
     },
     async removeModpack(modpack) {
       await window.devsApi.removeModpack(modpack);
