@@ -25,6 +25,7 @@ if (process.platform === "win32") {
 
 const accountStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'accounts.json');
 const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'settings.json');
+const modpacksStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'modpacks.json');
 
 let win;
 if (require('electron-squirrel-startup')) {
@@ -35,7 +36,11 @@ if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
     fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "locked");
 }
 
-seedDefaultSettings(settingsStorage, app);
+if (!fs.existsSync(path.join(app.getPath('userData'), '.modpacks'))) {
+    fs.mkdirSync(path.join(app.getPath('userData'), '.modpacks'));
+}
+
+seedDefaultSettings(settingsStorage, app, modpacksStorage);
 
 app.setAsDefaultProtocolClient('devsmc');
 protocol.registerSchemesAsPrivileged([
@@ -66,7 +71,7 @@ const createWindow = () => {
 
 
     win = mainWindow;
-    ipcEvents(accountStorage, settingsStorage, win);
+    ipcEvents(accountStorage, settingsStorage, win, modpacksStorage);
     app.setAppUserModelId(MAIN_WINDOW_VITE_DEV_SERVER_URL ? process.execPath : "DevsMC Launcher");
 };
 
@@ -82,7 +87,7 @@ app.whenReady().then((scheme, handler) => {
     checkJavaInstallation(app, settingsStorage)
         .then((result) => {
             new Notification({
-                title: "Java installed",
+                title: "Java 21 & 8 - installed",
                 body: "Java is installed on your system.",
                 icon: path.join(__dirname, '/assets/icon.png'),
             }).show();
@@ -97,7 +102,7 @@ app.whenReady().then((scheme, handler) => {
             installJava(app, win, settingsStorage)
                 .then((result) => {
                     new Notification({
-                        title: "Java installed",
+                        title: "Java 21 & 8 - installed",
                         icon: path.join(__dirname, '/assets/icon.png'),
                         body: "Java has been installed on your system.",
                     }).show();

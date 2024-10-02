@@ -4,22 +4,32 @@ const routes = [
     {
         path: "/",
         name: "Home",
-        component: () => import("./layouts/Home.vue")
+        component: () => import("./pages/Home.vue")
     },
     {
         path: "/settings",
         name: "Settings",
-        component: () => import("./layouts/Settings.vue")
+        component: () => import("./pages/Settings.vue")
     },
     {
         path: "/logs",
         name: "Logs",
-        component: () => import("./layouts/Logs.vue")
+        component: () => import("./pages/Logs.vue")
     },
     {
         path: "/authors",
         name: "Authors",
-        component: () => import("./layouts/Authors.vue")
+        component: () => import("./pages/Authors.vue")
+    },
+    {
+        path: "/modpacks",
+        name: "Modpacks",
+        component: () => import("./pages/Modpacks.vue")
+    },
+    {
+        path: "/modpacks/:index/mods",
+        name: "Mods",
+        component: () => import("./pages/Modpacks/ModsInstaller.vue")
     }
 ]
 
