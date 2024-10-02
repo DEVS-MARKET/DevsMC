@@ -152,13 +152,15 @@ export default (accountStorage, settingsStorage, win, modpacksStorage) => {
             data.user.object = token.mclc(true);
         }
 
+        let javaPath = compareVersions(data.launcher.version.number, "1.13") >= 0 ? settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java') : settingsStorage.get("java8") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java8')), 'bin', 'java');
+
         let options = {
             authorization: data.user.microsoft ? data.user.object : Authenticator.getAuth(data.user.object.username),
             root: settingsStorage.get("path") || path.join(app.getPath("userData"), ".minecraft"),
             version: data.launcher.version,
             customArgs: data.launcher.customArgs,
             memory: data.launcher.memory,
-            javaPath: settingsStorage.get("java") || path.join(findJdkFolder(path.join(app.getPath('userData'), 'java')), 'bin', 'java')
+            javaPath: javaPath
         }
 
         launcher.launch(options)
