@@ -84,10 +84,10 @@ app.whenReady().then((scheme, handler) => {
         return net.fetch(url.pathToFileURL(path.join(__dirname, filePath)).toString())
     });
 
-    checkJavaInstallation(app, settingsStorage)
+    checkJavaInstallation(app, settingsStorage, 21)
         .then((result) => {
             new Notification({
-                title: "Java 21 & 8 - installed",
+                title: "Java 21 - installed",
                 body: "Java is installed on your system.",
                 icon: path.join(__dirname, '/assets/icon.png'),
             }).show();
@@ -99,10 +99,44 @@ app.whenReady().then((scheme, handler) => {
                 body: "Java is not installed on your system, we will install it for you. - " + error.message,
             }).show();
 
-            installJava(app, win, settingsStorage)
+            installJava(app, win, settingsStorage, 21)
                 .then((result) => {
                     new Notification({
-                        title: "Java 21 & 8 - installed",
+                        title: "Java 21 - installed",
+                        icon: path.join(__dirname, '/assets/icon.png'),
+                        body: "Java has been installed on your system.",
+                    }).show();
+                })
+                .catch((error) => {
+                    new Notification({
+                        title: "Java installation failed",
+                        icon: path.join(__dirname, '/assets/icon.png'),
+                        body: "Java installation failed.",
+                    }).show();
+
+                    dialog.showErrorBox("Java installation failed", error.message);
+                });
+        });
+
+    checkJavaInstallation(app, settingsStorage, 8)
+        .then((result) => {
+            new Notification({
+                title: "Java 8 - installed",
+                body: "Java is installed on your system.",
+                icon: path.join(__dirname, '/assets/icon.png'),
+            }).show();
+        })
+        .catch((error) => {
+            new Notification({
+                title: "Java not installed",
+                icon: path.join(__dirname, '/assets/icon.png'),
+                body: "Java is not installed on your system, we will install it for you. - " + error.message,
+            }).show();
+
+            installJava(app, win, settingsStorage, 8)
+                .then((result) => {
+                    new Notification({
+                        title: "Java 8 - installed",
                         icon: path.join(__dirname, '/assets/icon.png'),
                         body: "Java has been installed on your system.",
                     }).show();
