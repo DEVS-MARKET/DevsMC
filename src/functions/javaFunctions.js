@@ -148,17 +148,11 @@ function downloadJavaByVersion (app, win, settingsStorage, version) {
     })
 }
 
-export function installJava (app, win, settingsStorage) {
+export function installJava (app, win, settingsStorage, version) {
     return new Promise((resolve, reject) => {
-        downloadJavaByVersion(app, win, settingsStorage, 21)
+        downloadJavaByVersion(app, win, settingsStorage, version)
             .then(() => {
-                downloadJavaByVersion(app, win, settingsStorage, 8)
-                    .then(() => {
-                        resolve();
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
+                resolve();
             })
             .catch((error) => {
                 reject(error);
