@@ -20,7 +20,7 @@ export function checkJavaInstallation (app, settingsStorage, version) {
     return new Promise((resolve, reject) => {
         let settingsKey = version === 21 ? 'java' : `java${version}`
         if (process.platform === 'win32') {
-            let filePath = settingsStorage.get(version) ? settingsStorage.get(version) : path.join(findJdkFolder(path.join(app.getPath('userData'), version)), 'bin', 'java');
+            let filePath = settingsStorage.get(version) ? settingsStorage.get(version) : path.join(findJdkFolder(path.join(app.getPath('userData'), settingsKey)), 'bin', 'java');
 
             exec(`"${path.normalize(filePath)}" -version`)
                 .then((result) => {
@@ -31,7 +31,7 @@ export function checkJavaInstallation (app, settingsStorage, version) {
                     reject(error);
                 });
         } else if (process.platform === 'darwin') {
-            let filePath = settingsStorage.get(version) ? settingsStorage.get(version) : path.join(findJdkFolder(path.join(app.getPath('userData'), version)), 'Contents', 'Home', 'bin', 'java');
+            let filePath = settingsStorage.get(version) ? settingsStorage.get(version) : path.join(findJdkFolder(path.join(app.getPath('userData'), settingsKey)), 'Contents', 'Home', 'bin', 'java');
             exec(`"${path.normalize(filePath)}" -version`)
                 .then((result) => {
                     resolve(result);
@@ -41,7 +41,7 @@ export function checkJavaInstallation (app, settingsStorage, version) {
                     reject(error);
                 });
         } else if (process.platform === 'linux') {
-            let filePath = settingsStorage.get(version) ? settingsStorage.get(version) : path.join(findJdkFolder(path.join(app.getPath('userData'), version)), 'bin', 'java');
+            let filePath = settingsStorage.get(version) ? settingsStorage.get(version) : path.join(findJdkFolder(path.join(app.getPath('userData'), settingsKey)), 'bin', 'java');
             exec(`"${path.normalize(filePath)}" -version`)
                 .then((result) => {
                     resolve(result);
