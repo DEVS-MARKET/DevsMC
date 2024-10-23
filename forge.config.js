@@ -26,36 +26,36 @@ module.exports = {
     {
       name: "@electron-forge/maker-squirrel",
       config: {
-        authors: 'Krzysztof Haller & DevsMarket',
-        description: 'DevsMC - A free and open-source Minecraft launcher.',
-        iconUrl: 'https://cdn.khaller.com/devsmarket/devsmc/icon.ico',
-        setupIcon: __dirname + '/icons/icon.ico',
-        loadingGif: __dirname + '/icons/loading.gif',
-        copyright: 'DevsMarket',
-        name: 'DevsMC-' + process.platform + '-' + process.arch,
+        "authors": 'Krzysztof Haller & DevsMarket',
+        "description": 'DevsMC - A free and open-source Minecraft launcher.',
+        "iconUrl": 'https://cdn.khaller.com/devsmarket/devsmc/icon.ico',
+        "setupIcon": __dirname + '/icons/icon.ico',
+        "loadingGif": __dirname + '/icons/loading.gif',
+        "copyright": 'DevsMarket',
+        "name": 'DevsMC-' + process.platform + '-' + process.arch,
       }
     },
     {
       name: '@electron-forge/maker-zip',
       platforms: ['linux', 'darwin'],
         config: {
-            name: 'DevsMC-' + process.platform + '.' + process.arch === 'arm64' ? 'arm' : '',
+            "name": 'DevsMC-' + process.platform + '.' + process.arch === 'arm64' ? 'arm' : '',
         },
     },
     {
       name: '@electron-forge/maker-dmg',
       config: {
-        icon: __dirname + '/icons/icon.icns',
-        name: 'DevsMC-' + process.platform + '-' + process.arch,
+        "icon": __dirname + '/icons/icon.icns',
+        "name": 'DevsMC-' + process.platform + '-' + process.arch,
       },
     },
     {
       name: '@electron-forge/maker-deb',
       config: {
         options: {
-          maintainer: 'Krzysztof Haller & DevsMarket',
-          homepage: 'https://devsmarket.eu/devsmc',
-          icon: __dirname + '/icons/icon.png',
+          "maintainer": 'Krzysztof Haller & DevsMarket',
+          "homepage": 'https://devsmarket.eu/devsmc',
+          "icon": __dirname + '/icons/icon.png',
         }
       },
     },
