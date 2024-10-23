@@ -31,7 +31,8 @@ jobs:
           GA4_SECRET: ${{ secrets.GA4_SECRET }}
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
-        run: npm run publish
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: env-cmd npm run publish
 
   publish_on_mac:
     name: Publish on macOS (arm64)
@@ -52,7 +53,9 @@ jobs:
         with:
           node-version: 20
       - name: install dependencies
-        run: npm install
+        run: |
+          npm install -g env-cmd
+          npm install
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -60,7 +63,8 @@ jobs:
           GA4_SECRET: ${{ secrets.GA4_SECRET }}
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
-        run: npm run publish
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: env-cmd npm run publish
 
   publish_on_mac64:
     name: Publish on macOS (Intel based)
@@ -88,8 +92,11 @@ jobs:
         run: |
           python3 -m pip install setuptools
           npm install -g appdmg@0.6.6
+          npm install -g env-cmd
       - name: install dependencies
-        run: npm install
+        run: |
+          npm install -g env-cmd
+          npm install
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -97,7 +104,8 @@ jobs:
           GA4_SECRET: ${{ secrets.GA4_SECRET }}
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
-        run: npm run publish
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: env-cmd npm run publish
 
   publish_on_win:
     runs-on: windows-latest
@@ -138,7 +146,9 @@ jobs:
         with:
           node-version: 20
       - name: install dependencies
-        run: npm install
+        run: |
+          npm install -g env-cmd
+          npm install
       - name: publish
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -146,4 +156,5 @@ jobs:
           GA4_SECRET: ${{ secrets.GA4_SECRET }}
           STRAPI_URL: ${{ secrets.STRAPI_URL }}
           STRAPI_TOKEN: ${{ secrets.STRAPI_TOKEN }}
-        run: npm run publish
+          CURSEFORGE_TOKEN: ${{ secrets.CURSEFORGE_TOKEN }}
+        run: env-cmd npm run publish
