@@ -141,7 +141,7 @@ function downloadJavaByVersion (app, win, settingsStorage, version) {
             new Notification({
                 title: "Java 8 cannot  be installed",
                 icon: path.join(__dirname, '/assets/icon.png'),
-                body: "Java 8 cannot be installed on your system because u use platform " + process.platform + " and arch " + process.arch,
+                body: "Java " + version + " cannot be installed on your system because u use platform " + process.platform + " and arch " + process.arch,
             }).show();
 
             resolve();
