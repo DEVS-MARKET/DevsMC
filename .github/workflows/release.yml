@@ -17,8 +17,6 @@ jobs:
       - name: Update version in package.json
         run: |
           sed -i 's/"version": "[^"]*"/"version": "'${{ env.version }}'"/' package.json
-
-
       - uses: actions/setup-node@master
         with:
           node-version: 20
