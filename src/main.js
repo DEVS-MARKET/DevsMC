@@ -9,6 +9,10 @@ import * as url from "node:url";
 import seedDefaultSettings from "./seedDefaultSettings";
 import {updateElectronApp, UpdateSourceType} from "update-electron-app";
 
+if (require('electron-squirrel-startup')) {
+    app.quit();
+}
+
 if (!fs.existsSync(path.join(app.getPath('userData'), '.securityToken'))) {
     const securityToken = crypto.randomBytes(64).toString('hex');
     fs.writeFileSync(path.join(app.getPath('userData'), '.securityToken'), securityToken);
@@ -28,9 +32,6 @@ const settingsStorage = new Store(fs.readFileSync(path.join(app.getPath('userDat
 const modpacksStorage = new Store(fs.readFileSync(path.join(app.getPath('userData'), '.securityToken'), 'utf8'), 'modpacks.json');
 
 let win;
-if (require('electron-squirrel-startup')) {
-    app.quit();
-}
 
 if (!fs.existsSync(path.join(app.getPath('userData'), '.installerLock'))) {
     fs.writeFileSync(path.join(app.getPath('userData'), '.installerLock'), "locked");
