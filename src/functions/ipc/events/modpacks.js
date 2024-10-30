@@ -8,7 +8,6 @@ import {Readable} from "stream";
 
 export default (modpacksStorage, win) => {
     const curseforge = new CurseforgeV1Client(`${process.env.CURSEFORGE_TOKEN}`)
-    console.log(`Curseforge token: ${process.env.CURSEFORGE_TOKEN}`)
 
     ipcMain.handle("getForgeVersions", async (event) => {
         return await forge.listSupportedVersions();
