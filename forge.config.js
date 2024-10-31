@@ -38,9 +38,9 @@ module.exports = {
     {
       name: '@electron-forge/maker-zip',
       platforms: ['linux', 'darwin'],
-        config: {
-            "name": 'DevsMC-' + process.platform + '.' + process.arch === 'arm64' ? 'arm' : '',
-        },
+      config: {
+        "name": 'DevsMC-' + process.platform + '.' + process.arch === 'arm64' ? 'arm' : '',
+      },
     },
     {
       name: '@electron-forge/maker-dmg',
@@ -94,7 +94,7 @@ module.exports = {
       [FuseV1Options.EnableNodeOptionsEnvironmentVariable]: false,
       [FuseV1Options.EnableNodeCliInspectArguments]: false,
       [FuseV1Options.EnableEmbeddedAsarIntegrityValidation]: true,
-      [FuseV1Options.OnlyLoadAppFromAsar]: true,
+      [FuseV1Options.OnlyLoadAppFromAsar]: false,
     }),
   ],
 };

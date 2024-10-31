@@ -1,9 +1,9 @@
-import {exec} from 'child-process-promise';
 import * as path from "node:path";
 import DecompressZip from 'decompress-zip';
 import * as fs from "node:fs";
 const { DownloaderHelper } = require('node-downloader-helper');
 import {Notification} from "electron";
+import {exec} from "child-process-promise";
 
 
 function findJdkFolder(folderPath) {
