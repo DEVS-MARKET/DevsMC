@@ -13,7 +13,7 @@
   </div> -->
 
   <div class="flex items-center rounded-lg ml-4">
-    <button data-modal-target="createmodpack" data-modal-toggle="createmodpack" type="button" class="text-white bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ">
+    <button @click="toggleModal()" data-modal-target="createmodpack" data-modal-toggle="createmodpack" type="button" class="text-white bg-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 ">
       Create a new modpack
     </button>
 
@@ -115,7 +115,7 @@
           <button @click="createModpack" data-modal-hide="createmodpack" type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
             Create
           </button>
-          <button data-modal-hide="createmodpack" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
+          <button @click="toggleModal" data-modal-hide="createmodpack" type="button" class="py-2.5 px-5 ms-3 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">
             Cancel
           </button>
         </div>
@@ -126,6 +126,8 @@
 
 <script>
 import {toRaw} from "vue";
+import {initFlowbite} from "flowbite";
+import {Modal} from "flowbite";
 
 export default {
   data: () => ({
@@ -141,12 +143,17 @@ export default {
 
   mounted() {
     this.getModpacks();
+    initFlowbite();
   },
 
   methods: {
     async getModpacks() {
       this.modpacks = await window.devsApi.getModpacks();
       console.log(this.modpacks);
+    },
+    toggleModal() {
+      let modal = new Modal(document.getElementById('createmodpack'))
+      modal.toggle();
     },
     async playModpack(modpack_id) {
       console.log(modpack_id);
@@ -188,6 +195,7 @@ export default {
         loader: '',
         version: '',
       };
+      this.toggleModal()
       await this.getModpacks();
     },
   }
